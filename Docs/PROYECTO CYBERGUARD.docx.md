@@ -88,15 +88,13 @@ Desarrollar una plataforma de software denominada CyberGuard, basada principalme
 
 5.2 Objetivos específicos
 
-1. Identificar y documentar los requerimientos funcionales y no funcionales necesarios para el desarrollo de CyberGuard.  
-2. Diseñar una arquitectura de software modular que permita separar la gestión de usuarios, dispositivos, eventos, análisis y alertas.  
-3. Diseñar una estructura de base de datos que permita almacenar y relacionar la información correspondiente a usuarios, dispositivos, eventos, reglas y alertas.  
-4. Definir un conjunto inicial de reglas para analizar determinados comportamientos registrados en una red autorizada.  
-5. Diseñar un mecanismo de clasificación que permita asignar niveles de riesgo a los eventos identificados.  
-6. Diseñar una interfaz que facilite la consulta de dispositivos, eventos, alertas e información histórica.  
-7. Establecer una metodología de trabajo que permita distribuir las actividades de desarrollo entre los cuatro integrantes del equipo.  
-8. Definir inicialmente los tipos de pruebas que serán utilizados en etapas posteriores para verificar el funcionamiento de los diferentes componentes del sistema.  
-9. DESCRIPCIÓN GENERAL DE LA SOLUCIÓN
+**5.2 Objetivos específicos**
+
+1. Identificar y documentar los requerimientos funcionales y no funcionales de CyberGuard, y diseñar con base en ellos una arquitectura modular y una base de datos que soporten la gestión de usuarios, dispositivos, eventos, reglas y alertas.  
+2. Definir reglas iniciales de análisis y un mecanismo de clasificación de riesgo para los eventos de una red autorizada, junto con una interfaz de consulta de dispositivos, eventos, alertas e historial.  
+3. Establecer una metodología de trabajo que distribuya las actividades entre los cuatro integrantes y definir los tipos de pruebas para verificar los componentes del sistema en etapas posteriores.
+
+DESCRIPCIÓN GENERAL DE LA SOLUCIÓN
 
 CyberGuard será una plataforma orientada al registro y análisis de eventos relacionados con una red informática autorizada.
 
@@ -187,7 +185,7 @@ Los principales usuarios contemplados serán:
 
 • Administrador: responsable de la configuración general, usuarios y reglas del sistema.
 
-• Analista: encargado de consultar eventos, revisar alertas y analizar comportamientos registrados.
+• Analista: Encargado de consultar eventos, revisar alertas y analizar comportamientos registrados.
 
 • Usuario de consulta: tendrá acceso limitado a la información autorizada.
 
@@ -285,19 +283,14 @@ Este componente permitirá aplicar estructuras de datos, algoritmos y principios
 
 Permitirá establecer las condiciones utilizadas para analizar los eventos.
 
-Inicialmente se podrán contemplar reglas relacionadas con:
+Inicialmente, se podrán contemplar reglas relacionadas con:
 
-• Cantidad de intentos de conexión.
-
-• Escaneo de diferentes puertos.
-
-• Aparición de dispositivos desconocidos.
-
-• Repetición de determinados eventos.
-
-• Frecuencia de actividad.
-
-• Acumulación de eventos asociados con un mismo dispositivo.
+* Cantidad de intentos de conexión.  
+* Escaneo de diferentes puertos.  
+* Aparición de dispositivos desconocidos.  
+* Repetición de determinados eventos.  
+* Frecuencia de actividad.  
+* Acumulación de eventos asociados con un mismo dispositivo.
 
 Las reglas serán definidas para un entorno académico y de laboratorio.
 
@@ -307,27 +300,19 @@ Cuando un evento cumpla una condición determinada, el sistema podrá generar un
 
 Una alerta podrá contener:
 
-• Evento asociado.
-
-• Dispositivo relacionado.
-
-• Fecha y hora.
-
-• Regla activada.
-
-• Nivel de riesgo.
-
-• Estado de la alerta.
+* Evento asociado.  
+* Dispositivo relacionado.  
+* Fecha y hora.  
+* Regla activada.  
+* Nivel de riesgo.  
+* Estado de la alerta.
 
 El estado de una alerta podrá ser:
 
-• Pendiente.
-
-• En revisión.
-
-• Atendida.
-
-• Cerrada.
+* Pendiente.  
+* En revisión.  
+* Atendida.  
+* Cerrada.
 
 9.7 Panel de información
 
@@ -343,7 +328,7 @@ Entre los indicadores iniciales se contemplan:
 
 • Alertas de riesgo alto.
 
-• Alertas críticas.
+• Alertas críticas. 
 
 • Eventos recientes.
 
@@ -575,29 +560,7 @@ Retroalimentación: se identificarán ajustes y nuevas actividades que deberán 
 
 Esta metodología permitirá mantener una organización progresiva del proyecto y facilitará la integración del trabajo realizado por los cuatro integrantes.
 
-16. ROLES Y RESPONSABILIDADES
-
-La distribución inicial de responsabilidades será la siguiente:
-
-Sergio Esteban Veloza Gonsales
-
-Responsable principal del apoyo en arquitectura y desarrollo general de la aplicación. Participará también en las actividades de análisis, integración y documentación.
-
-Luifer Andres Hernandez Lambraño
-
-Responsable principal del desarrollo de la lógica de negocio y procesamiento de información. Participará en la implementación e integración de los módulos correspondientes.
-
-Marcos Antonio Pacheco Bautista
-
-Responsable principal del diseño de la base de datos y del componente relacionado con las reglas y análisis de eventos. Participará en las pruebas e integración.
-
-Rafael Antonio Rodriguez Gamarra
-
-Responsable principal del diseño de la interfaz y apoyo en la integración de los componentes del sistema. Participará también en documentación y pruebas.
-
-La distribución de responsabilidades no será excluyente. Todos los integrantes participarán en las actividades de análisis, reuniones, integración, documentación y revisión del proyecto.
-
-17. PLANIFICACIÓN INICIAL
+16. PLANIFICACIÓN INICIAL
 
 | Fase | Actividades principales | Entregable |
 | :---- | :---- | :---- |
@@ -614,25 +577,18 @@ Las actividades serán gestionadas mediante un tablero de trabajo que permita id
 
 Para la organización del proyecto se podrán utilizar GitHub Projects, Trello u otra herramienta equivalente.
 
-18. HERRAMIENTAS DE TRABAJO
+17. HERRAMIENTAS DE TRABAJO
 
 Las principales herramientas de trabajo serán:
 
-• Git y GitHub para control de versiones y colaboración.
+* Git y GitHub para control de versiones y colaboración.  
+* Trello para la gestión de tareas.  
+* Cursor y Claude Code para el desarrollo.  
+* Java y Spring Boot para el desarrollo del software.  
+* PostgreSQL o MySQL para la gestión de datos.  
+* Herramientas de comunicación digital para coordinar las actividades del equipo.
 
-• GitHub Projects o Trello para la gestión de tareas.
-
-• IntelliJ IDEA, Eclipse o Visual Studio Code para el desarrollo.
-
-• Java y Spring Boot para el desarrollo del software.
-
-• PostgreSQL o MySQL para la gestión de datos.
-
-• Herramientas de comunicación digital para coordinar las actividades del equipo.
-
-• Nmap y Wireshark únicamente en entornos autorizados para actividades académicas de laboratorio.
-
-19. CONSIDERACIONES DE SEGURIDAD Y USO RESPONSABLE
+18. CONSIDERACIONES DE SEGURIDAD Y USO RESPONSABLE
 
 CyberGuard será desarrollado bajo un enfoque académico y de uso responsable. Las actividades de análisis estarán limitadas a redes, dispositivos y datos sobre los cuales el equipo tenga autorización.
 
