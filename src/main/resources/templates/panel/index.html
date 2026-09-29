@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Panel')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="contenido">
+    <div th:replace="~{fragments/layout :: avisos}"></div>
+    <header class="encabezado">
+        <div>
+            <h1>Panel</h1>
+            <p class="subtitulo">Indicadores de la red autorizada de laboratorio.</p>
+        </div>
+    </header>
+    <section class="rejilla">
+        <article class="tarjeta"><span>Dispositivos</span><strong th:text="${resumen.dispositivos}">0</strong></article>
+        <article class="tarjeta"><span>Eventos</span><strong th:text="${resumen.eventos}">0</strong></article>
+        <article class="tarjeta"><span>Alertas</span><strong th:text="${resumen.alertas}">0</strong></article>
+        <article class="tarjeta alta"><span>Riesgo alto</span><strong th:text="${resumen.alertasAltas}">0</strong></article>
+        <article class="tarjeta critica"><span>Críticas</span><strong th:text="${resumen.alertasCriticas}">0</strong></article>
+    </section>
+    <section class="columnas">
+        <article class="panel">
+            <h2>Eventos recientes</h2>
+            <p class="vacio" th:if="${#lists.isEmpty(resumen.eventosRecientes)}">Aún no hay eventos registrados.</p>
+            <table th:if="${!#lists.isEmpty(resumen.eventosRecientes)}">
+                <thead>
+                <tr><th>Fecha</th><th>IP</th><th>Tipo</th><th>Importancia</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="evento : ${resumen.eventosRecientes}">
+                    <td th:text="${#temporals.format(evento.fechaHora, 'dd/MM/yyyy HH:mm')}">fecha</td>
+                    <td class="mono" th:text="${evento.direccionIp}">ip</td>
+                    <td th:text="${evento.tipo.etiqueta}">tipo</td>
+                    <td th:text="${evento.importancia.etiqueta}">media</td>
+                </tr>
+                </tbody>
+            </table>
+        </article>
+        <article class="panel">
+            <h2>Alertas recientes</h2>
+            <p class="vacio" th:if="${#lists.isEmpty(resumen.alertasRecientes)}">No hay alertas.</p>
+            <table th:if="${!#lists.isEmpty(resumen.alertasRecientes)}">
+                <thead>
+                <tr><th>Nivel</th><th>IP</th><th></th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="alerta : ${resumen.alertasRecientes}">
+                    <td><span class="nivel" th:classappend="${'nivel-' + alerta.nivel.name()}" th:text="${alerta.nivel.etiqueta}">Bajo</span></td>
+                    <td class="mono" th:text="${alerta.evento.direccionIp}">ip</td>
+                    <td><a th:href="@{/alertas/{id}(id=${alerta.id})}">Ver</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </article>
+    </section>
+</main>
+</body>
+</html>

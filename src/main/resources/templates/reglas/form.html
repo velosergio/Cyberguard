@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Editar regla')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="contenido">
+    <header class="encabezado">
+        <div>
+            <h1 th:text="${regla.nombre}">Regla</h1>
+            <p class="subtitulo" th:text="${regla.descripcion}">Descripción</p>
+        </div>
+    </header>
+    <section class="panel">
+        <form class="datos" th:object="${form}" th:action="@{/reglas/{id}(id=${regla.id})}" method="post">
+            <div class="dos">
+                <label>Puntuación
+                    <input type="number" min="1" max="100" th:field="*{puntuacion}">
+                    <span class="error" th:if="${#fields.hasErrors('puntuacion')}" th:errors="*{puntuacion}"></span>
+                </label>
+                <label>Umbral
+                    <input type="number" min="1" th:field="*{umbral}">
+                    <span class="error" th:if="${#fields.hasErrors('umbral')}" th:errors="*{umbral}"></span>
+                </label>
+            </div>
+            <label>Ventana en minutos
+                <input type="number" min="0" max="1440" th:field="*{ventanaMinutos}">
+                <span class="error" th:if="${#fields.hasErrors('ventanaMinutos')}" th:errors="*{ventanaMinutos}"></span>
+            </label>
+            <label class="casilla">
+                <input type="checkbox" th:field="*{activa}"> Regla activa
+            </label>
+            <div class="acciones">
+                <button class="boton" type="submit">Guardar</button>
+                <a class="boton boton-fantasma" th:href="@{/reglas}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

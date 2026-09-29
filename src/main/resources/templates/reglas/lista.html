@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Reglas')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="contenido">
+    <div th:replace="~{fragments/layout :: avisos}"></div>
+    <header class="encabezado">
+        <div>
+            <h1>Reglas de detección</h1>
+            <p class="subtitulo">El administrador puede ajustar puntuación, umbral, ventana y si la regla está activa.</p>
+        </div>
+    </header>
+    <section class="panel">
+        <table>
+            <thead>
+            <tr><th>Regla</th><th>Puntos</th><th>Umbral</th><th>Ventana</th><th>Estado</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="regla : ${reglas}">
+                <td>
+                    <strong th:text="${regla.nombre}">nombre</strong>
+                    <div class="ayuda" th:text="${regla.descripcion}">descripcion</div>
+                </td>
+                <td th:text="${regla.puntuacion}">10</td>
+                <td th:text="${regla.umbral}">1</td>
+                <td th:text="${regla.ventanaMinutos} + ' min'">0</td>
+                <td th:text="${regla.activa} ? 'Activa' : 'Inactiva'">Activa</td>
+                <td sec:authorize="hasRole('ADMINISTRADOR')">
+                    <a th:href="@{/reglas/{id}/editar(id=${regla.id})}">Editar</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

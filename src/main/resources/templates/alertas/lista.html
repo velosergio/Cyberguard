@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Alertas')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="contenido">
+    <div th:replace="~{fragments/layout :: avisos}"></div>
+    <header class="encabezado">
+        <div>
+            <h1>Historial de alertas</h1>
+            <p class="subtitulo">Situaciones que cumplieron al menos una regla y requieren revisión.</p>
+        </div>
+    </header>
+    <form class="filtros" method="get" th:action="@{/alertas}">
+        <label>Nivel
+            <select name="nivel">
+                <option value="">Todos</option>
+                <option th:each="item : ${niveles}" th:value="${item}" th:text="${item.etiqueta}" th:selected="${item == nivel}"></option>
+            </select>
+        </label>
+        <label>Estado
+            <select name="estado">
+                <option value="">Todos</option>
+                <option th:each="item : ${estados}" th:value="${item}" th:text="${item.etiqueta}" th:selected="${item == estado}"></option>
+            </select>
+        </label>
+        <label>Desde
+            <input type="date" name="desde" th:value="${desde}">
+        </label>
+        <label>Hasta
+            <input type="date" name="hasta" th:value="${hasta}">
+        </label>
+        <button class="boton" type="submit">Filtrar</button>
+    </form>
+    <section class="panel">
+        <p class="vacio" th:if="${#lists.isEmpty(alertas)}">No hay alertas con esos filtros.</p>
+        <table th:if="${!#lists.isEmpty(alertas)}">
+            <thead>
+            <tr><th>Fecha</th><th>IP</th><th>Nivel</th><th>Puntos</th><th>Estado</th><th>Reglas</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="alerta : ${alertas}">
+                <td th:text="${#temporals.format(alerta.fechaHora, 'dd/MM/yyyy HH:mm')}">fecha</td>
+                <td class="mono" th:text="${alerta.evento.direccionIp}">ip</td>
+                <td><span class="nivel" th:classappend="${'nivel-' + alerta.nivel.name()}" th:text="${alerta.nivel.etiqueta}">Bajo</span></td>
+                <td th:text="${alerta.puntuacion}">10</td>
+                <td class="estado" th:text="${alerta.estado.etiqueta}">Pendiente</td>
+                <td>
+                    <span th:each="regla, iter : ${alerta.reglas}"><span th:text="${regla.nombre}">regla</span><span th:if="${!iter.last}">, </span></span>
+                </td>
+                <td><a th:href="@{/alertas/{id}(id=${alerta.id})}">Detalle</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Alerta')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="contenido">
+    <div th:replace="~{fragments/layout :: avisos}"></div>
+    <header class="encabezado">
+        <div>
+            <h1>Alerta <span th:text="${alerta.id}">1</span></h1>
+            <p class="subtitulo">La puntuación acumulada no afirma que exista un ataque. Indica que conviene revisarla.</p>
+        </div>
+        <a class="boton boton-fantasma" th:href="@{/alertas}">Volver</a>
+    </header>
+    <section class="columnas">
+        <article class="panel">
+            <h2>Datos</h2>
+            <table>
+                <tr><th>Fecha</th><td th:text="${#temporals.format(alerta.fechaHora, 'dd/MM/yyyy HH:mm')}">fecha</td></tr>
+                <tr><th>IP</th><td class="mono" th:text="${alerta.evento.direccionIp}">ip</td></tr>
+                <tr><th>Dispositivo</th><td th:text="${alerta.dispositivo != null ? alerta.dispositivo.nombre : 'No registrado'}">equipo</td></tr>
+                <tr><th>Evento</th><td th:text="${alerta.evento.tipo.etiqueta}">tipo</td></tr>
+                <tr><th>Detalle</th><td th:text="${alerta.evento.detalle} ?: '—'">detalle</td></tr>
+                <tr><th>Puntuación</th><td th:text="${alerta.puntuacion}">10</td></tr>
+                <tr><th>Nivel</th><td><span class="nivel" th:classappend="${'nivel-' + alerta.nivel.name()}" th:text="${alerta.nivel.etiqueta}">Bajo</span></td></tr>
+                <tr><th>Estado</th><td th:text="${alerta.estado.etiqueta}">Pendiente</td></tr>
+            </table>
+            <h2>Reglas activadas</h2>
+            <ul class="lista-reglas">
+                <li th:each="regla : ${alerta.reglas}">
+                    <strong th:text="${regla.nombre}">Regla</strong>
+                    <span th:text="' · ' + ${regla.puntuacion} + ' pts'">10</span>
+                    <div class="ayuda" th:text="${regla.descripcion}">descripcion</div>
+                </li>
+            </ul>
+        </article>
+        <article class="panel" sec:authorize="hasAnyRole('ADMINISTRADOR','ANALISTA')">
+            <h2>Seguimiento</h2>
+            <form class="datos" th:object="${form}" th:action="@{/alertas/{id}/estado(id=${alerta.id})}" method="post">
+                <p class="error" th:if="${#fields.hasGlobalErrors()}" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+                <label>Estado
+                    <select th:field="*{estado}">
+                        <option th:each="item : ${estados}" th:value="${item}" th:text="${item.etiqueta}"></option>
+                    </select>
+                </label>
+                <label>Nota
+                    <textarea th:field="*{nota}" maxlength="500"></textarea>
+                    <span class="error" th:if="${#fields.hasErrors('nota')}" th:errors="*{nota}"></span>
+                </label>
+                <button class="boton" type="submit">Guardar estado</button>
+            </form>
+        </article>
+    </section>
+</main>
+</body>
+</html>

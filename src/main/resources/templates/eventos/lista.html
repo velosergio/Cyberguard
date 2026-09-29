@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Eventos')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="contenido">
+    <div th:replace="~{fragments/layout :: avisos}"></div>
+    <header class="encabezado">
+        <div>
+            <h1>Historial de eventos</h1>
+            <p class="subtitulo">Eventos registrados manualmente con datos de laboratorio.</p>
+        </div>
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','ANALISTA')" class="boton" th:href="@{/eventos/nuevo}">Registrar evento</a>
+    </header>
+    <form class="filtros" method="get" th:action="@{/eventos}">
+        <label>IP
+            <input class="mono" name="ip" th:value="${ip}">
+        </label>
+        <label>Tipo
+            <select name="tipo">
+                <option value="">Todos</option>
+                <option th:each="item : ${tipos}" th:value="${item}" th:text="${item.etiqueta}" th:selected="${item == tipo}"></option>
+            </select>
+        </label>
+        <label>Desde
+            <input type="date" name="desde" th:value="${desde}">
+        </label>
+        <label>Hasta
+            <input type="date" name="hasta" th:value="${hasta}">
+        </label>
+        <button class="boton" type="submit">Filtrar</button>
+    </form>
+    <section class="panel">
+        <p class="vacio" th:if="${#lists.isEmpty(eventos)}">No hay eventos con esos filtros.</p>
+        <table th:if="${!#lists.isEmpty(eventos)}">
+            <thead>
+            <tr><th>Fecha</th><th>IP</th><th>Dispositivo</th><th>Tipo</th><th>Puerto</th><th>Importancia</th><th>Detalle</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="evento : ${eventos}">
+                <td th:text="${#temporals.format(evento.fechaHora, 'dd/MM/yyyy HH:mm')}">fecha</td>
+                <td class="mono" th:text="${evento.direccionIp}">ip</td>
+                <td th:text="${evento.dispositivo != null ? evento.dispositivo.nombre : 'No registrado'}">equipo</td>
+                <td th:text="${evento.tipo.etiqueta}">tipo</td>
+                <td th:text="${evento.puerto} ?: '—'">—</td>
+                <td th:text="${evento.importancia.etiqueta}">media</td>
+                <td th:text="${evento.detalle} ?: '—'">detalle</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

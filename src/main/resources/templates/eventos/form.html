@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Registrar evento')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="contenido">
+    <header class="encabezado">
+        <div>
+            <h1>Registrar evento</h1>
+            <p class="subtitulo">CyberGuard no escanea la red: aquí se cargan eventos de un entorno autorizado.</p>
+        </div>
+    </header>
+    <section class="panel">
+        <form class="datos" th:object="${form}" th:action="@{/eventos}" method="post">
+            <p class="error" th:if="${#fields.hasGlobalErrors()}" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            <label>Dispositivo
+                <select th:field="*{dispositivoId}" data-rellenar-ip>
+                    <option value="">Sin dispositivo registrado</option>
+                    <option th:each="dispositivo : ${dispositivos}" th:value="${dispositivo.id}"
+                            th:text="${dispositivo.nombre + ' · ' + dispositivo.direccionIp}"
+                            th:attr="data-ip=${dispositivo.direccionIp}"></option>
+                </select>
+            </label>
+            <div class="dos">
+                <label>Dirección IP
+                    <input class="mono" th:field="*{direccionIp}" data-ip placeholder="192.168.10.11">
+                    <span class="error" th:if="${#fields.hasErrors('direccionIp')}" th:errors="*{direccionIp}"></span>
+                </label>
+                <label>Fecha y hora
+                    <input type="datetime-local" th:field="*{fechaHora}" data-ahora>
+                    <span class="error" th:if="${#fields.hasErrors('fechaHora')}" th:errors="*{fechaHora}"></span>
+                </label>
+            </div>
+            <div class="dos">
+                <label>Tipo
+                    <select th:field="*{tipo}">
+                        <option value="">Selecciona</option>
+                        <option th:each="item : ${tipos}" th:value="${item}" th:text="${item.etiqueta}"></option>
+                    </select>
+                    <span class="error" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></span>
+                </label>
+                <label>Puerto
+                    <input type="number" min="1" max="65535" th:field="*{puerto}">
+                    <span class="error" th:if="${#fields.hasErrors('puerto')}" th:errors="*{puerto}"></span>
+                </label>
+            </div>
+            <label>Importancia
+                <select th:field="*{importancia}">
+                    <option th:each="item : ${importancias}" th:value="${item}" th:text="${item.etiqueta}"></option>
+                </select>
+            </label>
+            <label>Detalle
+                <textarea th:field="*{detalle}" maxlength="500"></textarea>
+                <span class="error" th:if="${#fields.hasErrors('detalle')}" th:errors="*{detalle}"></span>
+            </label>
+            <div class="acciones">
+                <button class="boton" type="submit">Analizar y guardar</button>
+                <a class="boton boton-fantasma" th:href="@{/eventos}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

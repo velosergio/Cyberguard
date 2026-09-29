@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Usuario')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="contenido">
+    <header class="encabezado">
+        <div>
+            <h1 th:text="${nuevo} ? 'Nuevo usuario' : 'Editar usuario'">Usuario</h1>
+            <p class="subtitulo" th:if="${!nuevo}">Deja la contraseña en blanco para conservar la actual.</p>
+        </div>
+    </header>
+    <section class="panel">
+        <form class="datos" th:object="${form}" th:action="@{/usuarios}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <p class="error" th:if="${#fields.hasGlobalErrors()}" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            <label>Nombre
+                <input th:field="*{nombre}">
+                <span class="error" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></span>
+            </label>
+            <div class="dos">
+                <label>Usuario
+                    <input th:field="*{usuario}" autocomplete="off">
+                    <span class="error" th:if="${#fields.hasErrors('usuario')}" th:errors="*{usuario}"></span>
+                </label>
+                <label>Correo
+                    <input type="email" th:field="*{correo}">
+                    <span class="error" th:if="${#fields.hasErrors('correo')}" th:errors="*{correo}"></span>
+                </label>
+            </div>
+            <div class="dos">
+                <label>Contraseña
+                    <input type="password" th:field="*{contrasena}" autocomplete="new-password">
+                    <span class="error" th:if="${#fields.hasErrors('contrasena')}" th:errors="*{contrasena}"></span>
+                </label>
+                <label>Rol
+                    <select th:field="*{rol}">
+                        <option th:each="rol : ${roles}" th:value="${rol}" th:text="${rol.etiqueta}"></option>
+                    </select>
+                </label>
+            </div>
+            <label class="casilla">
+                <input type="checkbox" th:field="*{activo}"> Cuenta activa
+            </label>
+            <div class="acciones">
+                <button class="boton" type="submit">Guardar</button>
+                <a class="boton boton-fantasma" th:href="@{/usuarios}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

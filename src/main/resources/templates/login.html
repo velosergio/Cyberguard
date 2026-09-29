@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ingreso · CyberGuard</title>
+    <link rel="icon" th:href="@{/favicon.svg}" type="image/svg+xml">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="login-pagina">
+<main class="login-caja">
+    <p class="marca"><span class="marca-marca">CG</span> CyberGuard</p>
+    <h1>Ingreso</h1>
+    <p class="subtitulo">Registro y análisis de eventos de una red autorizada.</p>
+    <p class="aviso error" th:if="${param.error}">Usuario o contraseña incorrectos, o la cuenta está inactiva.</p>
+    <p class="aviso" th:if="${param.logout}">Sesión cerrada.</p>
+    <form th:action="@{/login}" method="post">
+        <label>Usuario
+            <input name="username" autocomplete="username" required>
+        </label>
+        <label>Contraseña
+            <input name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="boton" type="submit">Entrar</button>
+    </form>
+</main>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Acceso denegado')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="contenido">
+    <section class="panel">
+        <h1>Acceso denegado</h1>
+        <p class="subtitulo">Tu rol no tiene permiso para esta acción.</p>
+        <p><a class="boton" th:href="@{/}">Volver al panel</a></p>
+    </section>
+</main>
+</body>
+</html>

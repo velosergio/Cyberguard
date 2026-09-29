@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo} + ' · CyberGuard'">CyberGuard</title>
+    <link rel="icon" th:href="@{/favicon.svg}" type="image/svg+xml">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:fragment="nav" class="barra">
+    <a class="marca" th:href="@{/}">
+        <span class="marca-marca">CG</span>
+        <span>CyberGuard</span>
+    </a>
+    <div class="menu">
+        <a th:href="@{/}" th:classappend="${ruta == '/'} ? 'activo'">Panel</a>
+        <a th:href="@{/dispositivos}" th:classappend="${#strings.startsWith(ruta, '/dispositivos')} ? 'activo'">Dispositivos</a>
+        <a th:href="@{/eventos}" th:classappend="${#strings.startsWith(ruta, '/eventos')} ? 'activo'">Eventos</a>
+        <a th:href="@{/alertas}" th:classappend="${#strings.startsWith(ruta, '/alertas')} ? 'activo'">Alertas</a>
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','ANALISTA')" th:href="@{/reglas}"
+           th:classappend="${#strings.startsWith(ruta, '/reglas')} ? 'activo'">Reglas</a>
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','ANALISTA')" th:href="@{/reportes}"
+           th:classappend="${#strings.startsWith(ruta, '/reportes')} ? 'activo'">Reportes</a>
+        <a sec:authorize="hasRole('ADMINISTRADOR')" th:href="@{/usuarios}"
+           th:classappend="${#strings.startsWith(ruta, '/usuarios')} ? 'activo'">Usuarios</a>
+    </div>
+    <div class="sesion">
+        <span class="quien" sec:authentication="name">usuario</span>
+        <form th:action="@{/logout}" method="post">
+            <button class="boton boton-fantasma" type="submit">Salir</button>
+        </form>
+    </div>
+</nav>
+<div th:fragment="avisos">
+    <p class="aviso" th:if="${mensaje}" th:text="${mensaje}"></p>
+    <p class="aviso error" th:if="${error}" th:text="${error}"></p>
+</div>
+</body>
+</html>

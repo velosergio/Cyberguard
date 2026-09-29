@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Dispositivos')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="contenido">
+    <div th:replace="~{fragments/layout :: avisos}"></div>
+    <header class="encabezado">
+        <div>
+            <h1>Dispositivos</h1>
+            <p class="subtitulo">Equipos registrados en la red autorizada.</p>
+        </div>
+        <a sec:authorize="hasAnyRole('ADMINISTRADOR','ANALISTA')" class="boton" th:href="@{/dispositivos/nuevo}">Registrar</a>
+    </header>
+    <section class="panel">
+        <p class="vacio" th:if="${#lists.isEmpty(dispositivos)}">No hay dispositivos registrados.</p>
+        <table th:if="${!#lists.isEmpty(dispositivos)}">
+            <thead>
+            <tr>
+                <th>Nombre</th><th>IP</th><th>MAC</th><th>Tipo</th><th>Estado</th><th>Última actividad</th><th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="dispositivo : ${dispositivos}">
+                <td th:text="${dispositivo.nombre}">nombre</td>
+                <td class="mono" th:text="${dispositivo.direccionIp}">ip</td>
+                <td class="mono" th:text="${dispositivo.direccionMac} ?: '—'">mac</td>
+                <td th:text="${dispositivo.tipo.etiqueta}">tipo</td>
+                <td th:text="${dispositivo.estado.etiqueta}">estado</td>
+                <td th:text="${dispositivo.ultimaActividad != null ? #temporals.format(dispositivo.ultimaActividad, 'dd/MM/yyyy HH:mm') : '—'}">fecha</td>
+                <td sec:authorize="hasAnyRole('ADMINISTRADOR','ANALISTA')">
+                    <a th:href="@{/dispositivos/{id}/editar(id=${dispositivo.id})}">Editar</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

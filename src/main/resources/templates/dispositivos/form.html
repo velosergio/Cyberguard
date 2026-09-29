@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dispositivo')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: nav}"></nav>
+<main class="contenido">
+    <header class="encabezado">
+        <div>
+            <h1 th:text="${nuevo} ? 'Registrar dispositivo' : 'Editar dispositivo'">Dispositivo</h1>
+            <p class="subtitulo">Solo equipos de la red sobre la que existe autorización.</p>
+        </div>
+    </header>
+    <section class="panel">
+        <form class="datos" th:object="${form}" th:action="@{/dispositivos}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <p class="error" th:if="${#fields.hasGlobalErrors()}" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+            <label>Nombre
+                <input th:field="*{nombre}">
+                <span class="error" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></span>
+            </label>
+            <div class="dos">
+                <label>Dirección IP
+                    <input class="mono" th:field="*{direccionIp}" placeholder="192.168.1.10">
+                    <span class="error" th:if="${#fields.hasErrors('direccionIp')}" th:errors="*{direccionIp}"></span>
+                </label>
+                <label>Dirección MAC
+                    <input class="mono" th:field="*{direccionMac}" placeholder="AA:BB:CC:DD:EE:FF">
+                    <span class="error" th:if="${#fields.hasErrors('direccionMac')}" th:errors="*{direccionMac}"></span>
+                </label>
+            </div>
+            <div class="dos">
+                <label>Tipo
+                    <select th:field="*{tipo}">
+                        <option th:each="tipo : ${tipos}" th:value="${tipo}" th:text="${tipo.etiqueta}"></option>
+                    </select>
+                    <span class="error" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></span>
+                </label>
+                <label>Estado
+                    <select th:field="*{estado}">
+                        <option th:each="estado : ${estados}" th:value="${estado}" th:text="${estado.etiqueta}"></option>
+                    </select>
+                    <span class="error" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}"></span>
+                </label>
+            </div>
+            <div class="acciones">
+                <button class="boton" type="submit">Guardar</button>
+                <a class="boton boton-fantasma" th:href="@{/dispositivos}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>
