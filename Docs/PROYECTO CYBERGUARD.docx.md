@@ -234,7 +234,7 @@ Quien no tiene sesión es redirigido a `/login`; quien tiene sesión pero no el 
 
 ## 8. DIAGRAMAS CORRESPONDIENTES AL PROYECTO
 
-Los diagramas siguen la notación UML 2.5 (Object Management Group [OMG], 2017) y el modelo entidad-relación (Chen, 1976). Se elaboraron con Mermaid (Mermaid, s. f.) a partir del código actual. Las imágenes están en `Docs/img/` y sus fuentes editables en `Docs/img/fuentes/`.
+Los diagramas siguen la notación UML 2.5 (Object Management Group [OMG], 2017) y el modelo entidad-relación (Chen, 1976). Se elaboraron con Mermaid (Mermaid, s. f.) a partir del código actual. Las imágenes están en `Docs/img/` y sus fuentes editables en `Docs/img/fuentes/` (rutas del proyecto que estan en github).
 
 ### 8.1 Diagrama de casos de uso
 

@@ -1,7 +1,6 @@
 package com.cun.cyberguard.service;
 
 import com.cun.cyberguard.analysis.ResultadoAnalisis;
-import com.cun.cyberguard.analysis.ResultadoDeteccion;
 import com.cun.cyberguard.domain.Alerta;
 import com.cun.cyberguard.domain.Evento;
 import com.cun.cyberguard.domain.Regla;
@@ -9,6 +8,7 @@ import com.cun.cyberguard.domain.enums.EstadoAlerta;
 import com.cun.cyberguard.domain.enums.NivelRiesgo;
 import com.cun.cyberguard.repository.AlertaRepository;
 import com.cun.cyberguard.web.form.AlertaEstadoForm;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +37,7 @@ public class AlertaService {
         alerta.setNivel(analisis.nivel());
         alerta.setEstado(EstadoAlerta.PENDIENTE);
         Set<Regla> reglas = analisis.detecciones().stream()
-                .map(ResultadoDeteccion::regla)
+                .map(deteccion -> deteccion.regla())
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         alerta.setReglas(reglas);
         return alertaRepository.save(alerta);
@@ -57,7 +57,7 @@ public class AlertaService {
     }
 
     @Transactional
-    public void actualizarEstado(Long id, AlertaEstadoForm form) {
+    public void actualizarEstado(@NonNull Long id, AlertaEstadoForm form) {
         Alerta alerta = alertaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("La alerta no existe"));
         alerta.setEstado(form.getEstado());

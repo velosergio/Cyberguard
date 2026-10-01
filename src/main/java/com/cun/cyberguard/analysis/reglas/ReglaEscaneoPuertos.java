@@ -4,7 +4,6 @@ import com.cun.cyberguard.analysis.CodigosRegla;
 import com.cun.cyberguard.analysis.ContextoAnalisis;
 import com.cun.cyberguard.analysis.ReglaDeteccion;
 import com.cun.cyberguard.analysis.ResultadoDeteccion;
-import com.cun.cyberguard.domain.Evento;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -24,7 +23,7 @@ public class ReglaEscaneoPuertos implements ReglaDeteccion {
             return Optional.empty();
         }
         long puertos = contexto.historial().stream()
-                .map(Evento::getPuerto)
+                .map(evento -> evento.getPuerto())
                 .filter(Objects::nonNull)
                 .distinct()
                 .count();

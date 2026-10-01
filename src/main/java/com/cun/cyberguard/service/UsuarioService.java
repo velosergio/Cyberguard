@@ -4,6 +4,7 @@ import com.cun.cyberguard.domain.Usuario;
 import com.cun.cyberguard.domain.enums.Rol;
 import com.cun.cyberguard.repository.UsuarioRepository;
 import com.cun.cyberguard.web.form.UsuarioForm;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,20 +30,26 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public Usuario obtener(Long id) {
+    public Usuario obtener(@NonNull Long id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("El usuario no existe"));
     }
 
     @Transactional
     public void guardar(UsuarioForm form) {
-        boolean nuevo = form.getId() == null;
+        Long id = form.getId();
+        boolean nuevo = id == null;
         String nombreUsuario = form.getUsuario().trim().toLowerCase();
         String correo = form.getCorreo().trim().toLowerCase();
         validarClave(form, nuevo);
-        validarUnicos(nombreUsuario, correo, form.getId(), nuevo);
+        validarUnicos(nombreUsuario, correo, id, nuevo);
 
-        Usuario usuario = nuevo ? new Usuario() : obtener(form.getId());
+        Usuario usuario;
+        if (id == null) {
+            usuario = new Usuario();
+        } else {
+            usuario = obtener(id);
+        }
         validarAdministradorRestante(usuario, form, nuevo);
 
         usuario.setNombre(form.getNombre().trim());

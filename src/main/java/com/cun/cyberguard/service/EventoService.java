@@ -72,8 +72,9 @@ public class EventoService {
     }
 
     private Dispositivo resolverDispositivo(EventoForm form) {
-        if (form.getDispositivoId() != null) {
-            return dispositivoRepository.findById(form.getDispositivoId())
+        Long dispositivoId = form.getDispositivoId();
+        if (dispositivoId != null) {
+            return dispositivoRepository.findById(dispositivoId)
                     .orElseThrow(() -> new IllegalArgumentException("El dispositivo seleccionado no existe"));
         }
         return dispositivoRepository.findByDireccionIp(form.getDireccionIp().trim()).orElse(null);

@@ -18,6 +18,7 @@ import com.cun.cyberguard.web.form.EventoForm;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
@@ -95,6 +96,7 @@ public class DataInitializer {
         };
     }
 
+    @NonNull
     private Usuario usuario(PasswordEncoder encoder, String nombre, String usuario, String correo, String clave, Rol rol) {
         Usuario creado = new Usuario();
         creado.setNombre(nombre);
@@ -106,6 +108,7 @@ public class DataInitializer {
         return creado;
     }
 
+    @NonNull
     private Regla regla(String codigo, String nombre, String descripcion, int puntuacion, int umbral, int ventana) {
         Regla regla = new Regla();
         regla.setCodigo(codigo);
@@ -118,6 +121,7 @@ public class DataInitializer {
         return regla;
     }
 
+    @NonNull
     private Dispositivo dispositivo(String nombre, String ip, String mac, TipoDispositivo tipo) {
         Dispositivo dispositivo = new Dispositivo();
         dispositivo.setNombre(nombre);

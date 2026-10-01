@@ -7,6 +7,7 @@ import com.cun.cyberguard.service.AlertaService;
 import com.cun.cyberguard.web.form.AlertaEstadoForm;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -63,7 +64,7 @@ public class AlertaController {
     }
 
     @PostMapping("/alertas/{id}/estado")
-    public String estado(@PathVariable Long id, @Valid @ModelAttribute("form") AlertaEstadoForm form,
+    public String estado(@PathVariable @NonNull Long id, @Valid @ModelAttribute("form") AlertaEstadoForm form,
                          BindingResult result, Model model, RedirectAttributes redirect) {
         if (result.hasErrors()) {
             model.addAttribute("alerta", alertaService.obtener(id));

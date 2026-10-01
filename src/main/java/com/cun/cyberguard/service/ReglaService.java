@@ -3,6 +3,7 @@ package com.cun.cyberguard.service;
 import com.cun.cyberguard.domain.Regla;
 import com.cun.cyberguard.repository.ReglaRepository;
 import com.cun.cyberguard.web.form.ReglaForm;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,13 +24,13 @@ public class ReglaService {
     }
 
     @Transactional(readOnly = true)
-    public Regla obtener(Long id) {
+    public Regla obtener(@NonNull Long id) {
         return reglaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("La regla no existe"));
     }
 
     @Transactional
-    public void actualizar(Long id, ReglaForm form) {
+    public void actualizar(@NonNull Long id, ReglaForm form) {
         Regla regla = obtener(id);
         regla.setPuntuacion(form.getPuntuacion());
         regla.setUmbral(form.getUmbral());

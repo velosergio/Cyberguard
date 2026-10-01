@@ -4,6 +4,7 @@ import com.cun.cyberguard.domain.Regla;
 import com.cun.cyberguard.service.ReglaService;
 import com.cun.cyberguard.web.form.ReglaForm;
 import jakarta.validation.Valid;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,7 +30,7 @@ public class ReglaController {
     }
 
     @GetMapping("/reglas/{id}/editar")
-    public String editar(@PathVariable Long id, Model model, RedirectAttributes redirect) {
+    public String editar(@PathVariable @NonNull Long id, Model model, RedirectAttributes redirect) {
         try {
             Regla regla = reglaService.obtener(id);
             model.addAttribute("regla", regla);
@@ -42,7 +43,7 @@ public class ReglaController {
     }
 
     @PostMapping("/reglas/{id}")
-    public String guardar(@PathVariable Long id, @Valid @ModelAttribute("form") ReglaForm form,
+    public String guardar(@PathVariable @NonNull Long id, @Valid @ModelAttribute("form") ReglaForm form,
                           BindingResult result, Model model, RedirectAttributes redirect) {
         Regla regla;
         try {

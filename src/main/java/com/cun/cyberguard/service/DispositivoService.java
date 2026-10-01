@@ -3,6 +3,7 @@ package com.cun.cyberguard.service;
 import com.cun.cyberguard.domain.Dispositivo;
 import com.cun.cyberguard.repository.DispositivoRepository;
 import com.cun.cyberguard.web.form.DispositivoForm;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,25 +25,28 @@ public class DispositivoService {
     }
 
     @Transactional(readOnly = true)
-    public Dispositivo obtener(Long id) {
+    public Dispositivo obtener(@NonNull Long id) {
         return dispositivoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("El dispositivo no existe"));
     }
 
     @Transactional
     public void guardar(DispositivoForm form) {
-        boolean nuevo = form.getId() == null;
+        Long id = form.getId();
         String ip = form.getDireccionIp().trim();
-        boolean ipRepetida = nuevo
+        boolean ipRepetida = id == null
                 ? dispositivoRepository.existsByDireccionIp(ip)
-                : dispositivoRepository.existsByDireccionIpAndIdNot(ip, form.getId());
+                : dispositivoRepository.existsByDireccionIpAndIdNot(ip, id);
         if (ipRepetida) {
             throw new IllegalArgumentException("Ya existe un dispositivo con esa dirección IP");
         }
 
-        Dispositivo dispositivo = nuevo ? new Dispositivo() : obtener(form.getId());
-        if (nuevo) {
+        Dispositivo dispositivo;
+        if (id == null) {
+            dispositivo = new Dispositivo();
             dispositivo.setFechaRegistro(LocalDateTime.now());
+        } else {
+            dispositivo = obtener(id);
         }
         dispositivo.setNombre(form.getNombre().trim());
         dispositivo.setDireccionIp(ip);

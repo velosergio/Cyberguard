@@ -61,7 +61,8 @@ public class EventoController {
                 redirect.addFlashAttribute("eventoId", evento.getId());
                 return "redirect:/eventos";
             } catch (IllegalArgumentException ex) {
-                result.reject("negocio", ex.getMessage());
+                String mensaje = ex.getMessage();
+                result.reject("negocio", mensaje == null ? "" : mensaje);
             }
         }
         preparar(model, form);

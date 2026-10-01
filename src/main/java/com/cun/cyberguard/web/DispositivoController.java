@@ -5,6 +5,7 @@ import com.cun.cyberguard.domain.enums.TipoDispositivo;
 import com.cun.cyberguard.service.DispositivoService;
 import com.cun.cyberguard.web.form.DispositivoForm;
 import jakarta.validation.Valid;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -36,7 +37,7 @@ public class DispositivoController {
     }
 
     @GetMapping("/dispositivos/{id}/editar")
-    public String editar(@PathVariable Long id, Model model, RedirectAttributes redirect) {
+    public String editar(@PathVariable @NonNull Long id, Model model, RedirectAttributes redirect) {
         try {
             preparar(model, dispositivoService.aFormulario(dispositivoService.obtener(id)), false);
             return "dispositivos/form";
@@ -69,7 +70,8 @@ public class DispositivoController {
             accion.run();
             return false;
         } catch (IllegalArgumentException ex) {
-            result.reject("negocio", ex.getMessage());
+            String mensaje = ex.getMessage();
+            result.reject("negocio", mensaje == null ? "" : mensaje);
             return true;
         }
     }

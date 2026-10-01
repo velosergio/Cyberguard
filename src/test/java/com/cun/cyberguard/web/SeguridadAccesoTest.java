@@ -24,6 +24,7 @@ class SeguridadAccesoTest {
 
     @Test
     @WithMockUser(username = "consulta", roles = "CONSULTA")
+    @SuppressWarnings("null")
     void consultaNoPuedeCrearUsuarios() throws Exception {
         mockMvc.perform(post("/usuarios")
                         .with(csrf())

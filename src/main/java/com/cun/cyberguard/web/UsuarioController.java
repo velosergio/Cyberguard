@@ -4,6 +4,7 @@ import com.cun.cyberguard.domain.enums.Rol;
 import com.cun.cyberguard.service.UsuarioService;
 import com.cun.cyberguard.web.form.UsuarioForm;
 import jakarta.validation.Valid;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -37,7 +38,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/usuarios/{id}/editar")
-    public String editar(@PathVariable Long id, Model model, RedirectAttributes redirect) {
+    public String editar(@PathVariable @NonNull Long id, Model model, RedirectAttributes redirect) {
         try {
             model.addAttribute("form", usuarioService.aFormulario(usuarioService.obtener(id)));
             model.addAttribute("nuevo", false);
@@ -58,7 +59,8 @@ public class UsuarioController {
                 redirect.addFlashAttribute("mensaje", "Usuario guardado");
                 return "redirect:/usuarios";
             } catch (IllegalArgumentException ex) {
-                result.reject("negocio", ex.getMessage());
+                String mensaje = ex.getMessage();
+                result.reject("negocio", mensaje == null ? "" : mensaje);
             }
         }
         model.addAttribute("nuevo", form.getId() == null);
