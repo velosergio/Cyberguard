@@ -1,0 +1,18 @@
+flowchart LR
+    subgraph R["Roles"]
+        ADM["ADMINISTRADOR"]
+        ANA["ANALISTA"]
+        CON["CONSULTA"]
+    end
+    subgraph P["Rutas protegidas por SecurityConfig"]
+        P1["GET / · /dispositivos · /eventos · /alertas<br/>(consulta)"]
+        P2["POST /dispositivos · POST /eventos<br/>POST /alertas/{id}/estado"]
+        P3["GET /reglas · /reportes (CSV)"]
+        P4["GET /reglas/{id}/editar · POST /reglas/{id}"]
+        P5["/usuarios/**"]
+    end
+    ADM --> P1 & P2 & P3 & P4 & P5
+    ANA --> P1 & P2 & P3
+    CON --> P1
+    X["Sin sesión"] -. "redirige" .-> L["/login"]
+    Y["Rol insuficiente"] -. "403" .-> D["/acceso-denegado"]

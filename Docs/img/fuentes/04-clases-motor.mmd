@@ -1,0 +1,64 @@
+classDiagram
+    direction TB
+    class EventoService {
+        +registrar(EventoForm) Evento
+        +buscar(ip, tipo, desde, hasta) List~Evento~
+        -resolverDispositivo(EventoForm) Dispositivo
+    }
+    class AlertaService {
+        +crear(Evento, ResultadoAnalisis) Alerta
+        +actualizarEstado(Long, AlertaEstadoForm) void
+    }
+    class MotorAnalisis {
+        -Map~String, ReglaDeteccion~ estrategias
+        +analizar(Evento) ResultadoAnalisis
+    }
+    class ClasificadorRiesgo {
+        +limitar(int) int
+        +clasificar(int) NivelRiesgo
+    }
+    class ReglaDeteccion {
+        <<interface>>
+        +codigo() String
+        +evaluar(ContextoAnalisis) Optional~ResultadoDeteccion~
+    }
+    class ContextoAnalisis {
+        <<record>>
+        Evento evento
+        Regla regla
+        List~Evento~ historial
+        boolean dispositivoRegistrado
+    }
+    class ResultadoDeteccion {
+        <<record>>
+        Regla regla
+        String detalle
+    }
+    class ResultadoAnalisis {
+        <<record>>
+        List~ResultadoDeteccion~ detecciones
+        int puntuacion
+        NivelRiesgo nivel
+        +hayDetecciones() boolean
+    }
+    class ReglaDispositivoNoRegistrado
+    class ReglaActividadInusual
+    class ReglaRepeticionConexiones
+    class ReglaMultiplesIntentos
+    class ReglaEscaneoPuertos
+    class ReglaAcumulacionSospechosa
+
+    EventoService --> MotorAnalisis : analizar()
+    EventoService --> AlertaService : crear()
+    MotorAnalisis --> ClasificadorRiesgo
+    MotorAnalisis o-- "6" ReglaDeteccion : estrategias por código
+    MotorAnalisis ..> ContextoAnalisis : crea
+    MotorAnalisis ..> ResultadoAnalisis : devuelve
+    ReglaDeteccion ..> ResultadoDeteccion : produce
+    ResultadoAnalisis *-- ResultadoDeteccion
+    ReglaDeteccion <|.. ReglaDispositivoNoRegistrado
+    ReglaDeteccion <|.. ReglaActividadInusual
+    ReglaDeteccion <|.. ReglaRepeticionConexiones
+    ReglaDeteccion <|.. ReglaMultiplesIntentos
+    ReglaDeteccion <|.. ReglaEscaneoPuertos
+    ReglaDeteccion <|.. ReglaAcumulacionSospechosa

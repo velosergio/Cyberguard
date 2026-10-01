@@ -1,0 +1,13 @@
+stateDiagram-v2
+    direction LR
+    [*] --> PENDIENTE : el análisis detecta al menos una regla
+    PENDIENTE --> EN_REVISION : un analista la toma
+    EN_REVISION --> ATENDIDA : se actúa y se deja nota
+    ATENDIDA --> CERRADA : se confirma el cierre
+    EN_REVISION --> CERRADA : falso positivo
+    CERRADA --> EN_REVISION : se reabre
+    CERRADA --> [*]
+    note right of PENDIENTE
+        Flujo recomendado. El formulario
+        permite elegir cualquier estado.
+    end note

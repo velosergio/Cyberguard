@@ -1,0 +1,44 @@
+sequenceDiagram
+    autonumber
+    actor A as Analista
+    participant C as EventoController
+    participant ES as EventoService
+    participant DR as DispositivoRepository
+    participant ER as EventoRepository
+    participant M as MotorAnalisis
+    participant R as ReglaDeteccion (x6)
+    participant CR as ClasificadorRiesgo
+    participant AS as AlertaService
+    participant BD as MySQL
+
+    A->>C: POST /eventos (EventoForm)
+    C->>C: @Valid: IP, tipo, fecha, importancia, puerto 1-65535
+    alt formulario con errores
+        C-->>A: vuelve a eventos/form con mensajes
+    else formulario válido
+        C->>ES: registrar(form) [@Transactional]
+        ES->>ES: ¿ACCESO_PUERTO sin puerto? → error de negocio
+        ES->>DR: findById / findByDireccionIp
+        DR-->>ES: Dispositivo o null
+        ES->>ER: save(evento)
+        ER->>BD: INSERT eventos
+        opt dispositivo registrado y no DESCONOCIDO
+            ES->>DR: save(ultimaActividad = fechaHora)
+        end
+        ES->>M: analizar(evento)
+        M->>DR: findByDireccionIp → ¿registrado?
+        loop por cada regla activa (findByActivaTrue)
+            M->>ER: historial(ip, fechaHora − ventana)
+            M->>R: evaluar(ContextoAnalisis)
+            R-->>M: Optional<ResultadoDeteccion>
+        end
+        M->>CR: limitar(suma de puntos) y clasificar()
+        CR-->>M: puntuación 0-100 y NivelRiesgo
+        M-->>ES: ResultadoAnalisis
+        opt hayDetecciones()
+            ES->>AS: crear(evento, resultado)
+            AS->>BD: INSERT alertas + alerta_regla (PENDIENTE)
+        end
+        ES-->>C: evento guardado
+        C-->>A: redirect:/eventos + mensaje
+    end

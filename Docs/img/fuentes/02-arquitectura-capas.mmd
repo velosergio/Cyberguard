@@ -1,0 +1,36 @@
+flowchart TB
+    NAV["🌐 Navegador<br/>HTML + CSS + JavaScript"]
+    subgraph APP["Aplicación Spring Boot 3.5 · Java 21 · Tomcat :8080"]
+        direction TB
+        SEC["Spring Security<br/>login por formulario · roles · CSRF · BCrypt<br/><i>config/SecurityConfig</i>"]
+        subgraph PRES["Capa de presentación"]
+            WEB["Controladores MVC<br/><i>web/</i><br/>Panel · Dispositivo · Evento · Alerta<br/>Regla · Reporte · Usuario · Login"]
+            FORM["Formularios con validación<br/><i>web/form/</i> · Jakarta Validation"]
+            TPL["Plantillas Thymeleaf<br/><i>templates/</i>"]
+        end
+        subgraph NEG["Capa de negocio"]
+            SRV["Servicios transaccionales<br/><i>service/</i><br/>EventoService · AlertaService · DispositivoService<br/>UsuarioService · ReglaService · PanelService · ReporteService"]
+        end
+        subgraph ANL["Motor de análisis"]
+            MOT["MotorAnalisis · ClasificadorRiesgo<br/><i>analysis/</i>"]
+            RGL["6 estrategias ReglaDeteccion<br/><i>analysis/reglas/</i>"]
+        end
+        subgraph DAT["Capa de acceso a datos"]
+            REP["Repositorios Spring Data JPA<br/><i>repository/</i>"]
+            DOM["Entidades JPA + enums<br/><i>domain/</i>"]
+        end
+    end
+    DB[("🗄 MySQL / MariaDB<br/>base cyberguard<br/>(H2 en memoria para pruebas)")]
+
+    NAV -- "HTTP GET/POST" --> SEC
+    SEC --> WEB
+    WEB --> FORM
+    WEB --> TPL
+    WEB --> SRV
+    SRV --> MOT
+    MOT --> RGL
+    SRV --> REP
+    MOT --> REP
+    REP --> DOM
+    REP -- "JDBC · Hibernate 6" --> DB
+    TPL -- "HTML renderizado en el servidor" --> NAV

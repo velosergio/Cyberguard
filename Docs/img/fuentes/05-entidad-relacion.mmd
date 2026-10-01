@@ -1,0 +1,60 @@
+erDiagram
+    USUARIOS {
+        BIGINT id PK
+        VARCHAR nombre "80"
+        VARCHAR usuario UK "40"
+        VARCHAR correo UK "120"
+        VARCHAR contrasena "hash BCrypt, 100"
+        VARCHAR rol "ADMINISTRADOR, ANALISTA, CONSULTA"
+        BOOLEAN activo
+        DATETIME creado_en
+    }
+    DISPOSITIVOS {
+        BIGINT id PK
+        VARCHAR direccion_ip UK "45"
+        VARCHAR direccion_mac "17, opcional"
+        VARCHAR nombre "80"
+        VARCHAR tipo "20"
+        VARCHAR estado "ACTIVO, INACTIVO, DESCONOCIDO"
+        DATETIME fecha_registro
+        DATETIME ultima_actividad "opcional"
+    }
+    EVENTOS {
+        BIGINT id PK
+        BIGINT dispositivo_id FK "opcional"
+        VARCHAR direccion_ip "45"
+        VARCHAR tipo "30"
+        INT puerto "opcional"
+        DATETIME fecha_hora
+        VARCHAR detalle "500, opcional"
+        VARCHAR importancia "BAJA, MEDIA, ALTA"
+    }
+    REGLAS {
+        BIGINT id PK
+        VARCHAR codigo UK "40"
+        VARCHAR nombre "80"
+        VARCHAR descripcion "300"
+        INT puntuacion
+        INT umbral
+        INT ventana_minutos
+        BOOLEAN activa
+    }
+    ALERTAS {
+        BIGINT id PK
+        BIGINT evento_id FK
+        BIGINT dispositivo_id FK "opcional"
+        DATETIME fecha_hora
+        INT puntuacion "0 a 100"
+        VARCHAR nivel "BAJO a CRITICO"
+        VARCHAR estado "PENDIENTE a CERRADA"
+        VARCHAR nota "500, opcional"
+    }
+    ALERTA_REGLA {
+        BIGINT alerta_id PK, FK
+        BIGINT regla_id PK, FK
+    }
+    DISPOSITIVOS |o--o{ EVENTOS : "registra"
+    EVENTOS ||--o{ ALERTAS : "origina"
+    DISPOSITIVOS |o--o{ ALERTAS : "afecta"
+    ALERTAS ||--|{ ALERTA_REGLA : "cita"
+    REGLAS ||--o{ ALERTA_REGLA : "se cumple en"

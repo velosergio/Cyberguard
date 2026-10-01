@@ -1,0 +1,113 @@
+classDiagram
+    direction LR
+    class Usuario {
+        -Long id
+        -String nombre
+        -String usuario
+        -String correo
+        -String contrasena
+        -Rol rol
+        -boolean activo
+        -LocalDateTime creadoEn
+    }
+    class Dispositivo {
+        -Long id
+        -String direccionIp
+        -String direccionMac
+        -String nombre
+        -TipoDispositivo tipo
+        -EstadoDispositivo estado
+        -LocalDateTime fechaRegistro
+        -LocalDateTime ultimaActividad
+    }
+    class Evento {
+        -Long id
+        -Dispositivo dispositivo
+        -String direccionIp
+        -TipoEvento tipo
+        -Integer puerto
+        -LocalDateTime fechaHora
+        -String detalle
+        -Importancia importancia
+    }
+    class Regla {
+        -Long id
+        -String codigo
+        -String nombre
+        -String descripcion
+        -int puntuacion
+        -int umbral
+        -int ventanaMinutos
+        -boolean activa
+    }
+    class Alerta {
+        -Long id
+        -Evento evento
+        -Dispositivo dispositivo
+        -LocalDateTime fechaHora
+        -int puntuacion
+        -NivelRiesgo nivel
+        -EstadoAlerta estado
+        -String nota
+        -Set~Regla~ reglas
+    }
+    class Rol {
+        <<enumeration>>
+        ADMINISTRADOR
+        ANALISTA
+        CONSULTA
+    }
+    class TipoEvento {
+        <<enumeration>>
+        INTENTO_CONEXION
+        ACCESO_PUERTO
+        ACTIVIDAD_INUSUAL
+        DISPOSITIVO_DESCONOCIDO
+        OTRO
+    }
+    class NivelRiesgo {
+        <<enumeration>>
+        BAJO
+        MEDIO
+        ALTO
+        CRITICO
+    }
+    class EstadoAlerta {
+        <<enumeration>>
+        PENDIENTE
+        EN_REVISION
+        ATENDIDA
+        CERRADA
+    }
+    class EstadoDispositivo {
+        <<enumeration>>
+        ACTIVO
+        INACTIVO
+        DESCONOCIDO
+    }
+    class Importancia {
+        <<enumeration>>
+        BAJA
+        MEDIA
+        ALTA
+    }
+    class TipoDispositivo {
+        <<enumeration>>
+        COMPUTADOR
+        TELEFONO
+        SERVIDOR
+        IMPRESORA
+        CAMARA
+        OTRO
+    }
+    Evento "0..*" --> "0..1" Dispositivo : dispositivo
+    Alerta "0..*" --> "1" Evento : evento
+    Alerta "0..*" --> "0..1" Dispositivo : dispositivo
+    Alerta "0..*" --> "1..*" Regla : reglas
+    Usuario ..> Rol
+    Evento ..> TipoEvento
+    Evento ..> Importancia
+    Dispositivo ..> EstadoDispositivo
+    Dispositivo ..> TipoDispositivo
+    Alerta ..> NivelRiesgo
+    Alerta ..> EstadoAlerta

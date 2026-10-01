@@ -1,0 +1,38 @@
+flowchart LR
+    ADM(["👤 Administrador"])
+    ANA(["👤 Analista"])
+    CON(["👤 Consulta"])
+    SIS(["⚙ Motor de análisis<br/>(actor interno)"])
+
+    subgraph CG["Sistema CyberGuard"]
+        direction TB
+        UC1(["CU01 Iniciar / cerrar sesión"])
+        UC2(["CU02 Consultar panel"])
+        UC3(["CU03 Consultar dispositivos, eventos y alertas"])
+        UC4(["CU04 Registrar / editar dispositivo"])
+        UC5(["CU05 Registrar evento"])
+        UC6(["CU06 Analizar evento con reglas activas"])
+        UC7(["CU07 Clasificar riesgo y generar alerta"])
+        UC8(["CU08 Cambiar estado de alerta y anotar"])
+        UC9(["CU09 Consultar y exportar reportes CSV"])
+        UC10(["CU10 Consultar reglas"])
+        UC11(["CU11 Ajustar reglas"])
+        UC12(["CU12 Gestionar usuarios"])
+    end
+
+    CON --- UC1
+    CON --- UC2
+    CON --- UC3
+    ANA --- UC4
+    ANA --- UC5
+    ANA --- UC8
+    ANA --- UC9
+    ANA --- UC10
+    ADM --- UC11
+    ADM --- UC12
+    UC5 -. "«include»" .-> UC6
+    UC6 -. "«include»" .-> UC7
+    UC6 --- SIS
+    UC7 --- SIS
+    ANA -. "hereda permisos de" .-> CON
+    ADM -. "hereda permisos de" .-> ANA

@@ -1,0 +1,31 @@
+flowchart TD
+    I((Inicio)) --> A[Evento guardado en la base]
+    A --> B{¿La IP está en el inventario<br/>y su estado no es DESCONOCIDO?}
+    B -- Sí --> B1[dispositivoRegistrado = true]
+    B -- No --> B2[dispositivoRegistrado = false]
+    B1 --> C
+    B2 --> C
+    C[Cargar reglas activas] --> D{¿Quedan reglas<br/>por evaluar?}
+    D -- Sí --> E{¿Existe estrategia Java<br/>para el código de la regla?}
+    E -- No --> D
+    E -- Sí --> F[Historial de la misma IP desde<br/>fechaHora − ventanaMinutos]
+    F --> G[evaluar ContextoAnalisis]
+    G --> H{¿Se cumple la condición<br/>y el umbral?}
+    H -- Sí --> H1[Agregar detección<br/>con los puntos de la regla]
+    H -- No --> D
+    H1 --> D
+    D -- No --> J[Sumar puntos y limitar a 0..100]
+    J --> K{Puntuación}
+    K -- "0-20" --> L1[BAJO]
+    K -- "21-50" --> L2[MEDIO]
+    K -- "51-80" --> L3[ALTO]
+    K -- "81-100" --> L4[CRÍTICO]
+    L1 --> M
+    L2 --> M
+    L3 --> M
+    L4 --> M
+    M{¿Hubo al menos<br/>una detección?}
+    M -- Sí --> N[Crear UNA alerta PENDIENTE<br/>ligada al evento y a las reglas cumplidas]
+    M -- No --> O[Sin alerta]
+    N --> F2((Fin))
+    O --> F2

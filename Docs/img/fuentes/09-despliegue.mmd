@@ -1,0 +1,18 @@
+flowchart LR
+    subgraph PC["Equipo del usuario"]
+        B["🌐 Navegador web<br/>Chrome · Edge · Firefox"]
+    end
+    subgraph SRV["Equipo de laboratorio (localhost)"]
+        subgraph JVM["JVM · JDK 21 o superior"]
+            JAR["cyberguard-0.0.1-SNAPSHOT.jar<br/>Spring Boot 3.5.16<br/>Tomcat embebido :8080"]
+        end
+        subgraph XAMPP["XAMPP / Laragon"]
+            MY[("MySQL / MariaDB :3306<br/>base cyberguard")]
+        end
+    end
+    subgraph TEST["Pruebas automáticas (mvnw test)"]
+        H2[("H2 en memoria<br/>modo MySQL")]
+    end
+    B -- "HTTP · sesión + CSRF" --> JAR
+    JAR -- "JDBC mysql-connector-j<br/>zona America/Bogota" --> MY
+    JAR -. "perfil test" .-> H2
