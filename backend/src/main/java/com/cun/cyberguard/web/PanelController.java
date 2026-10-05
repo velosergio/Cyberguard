@@ -1,0 +1,23 @@
+package com.cun.cyberguard.web;
+
+import com.cun.cyberguard.service.PanelService;
+import com.cun.cyberguard.web.dto.PanelDto;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/panel")
+public class PanelController {
+
+    private final PanelService panelService;
+
+    public PanelController(PanelService panelService) {
+        this.panelService = panelService;
+    }
+
+    @GetMapping
+    public PanelDto panel() {
+        return PanelDto.de(panelService.resumir());
+    }
+}

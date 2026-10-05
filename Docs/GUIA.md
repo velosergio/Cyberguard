@@ -26,9 +26,11 @@ Hay tres roles. Las contraseñas se guardan cifradas con BCrypt. Un usuario marc
 | Analista | `analista` / `Analista123*` | Registrar y editar dispositivos, registrar eventos, cambiar el estado de las alertas y descargar reportes. Puede ver las reglas. |
 | Consulta | `consulta` / `Consulta123*` | Ver el panel, los dispositivos, los eventos y las alertas. No crea ni modifica datos, ni abre reportes. |
 
-El menú y las direcciones web se controlan juntos: Spring Security decide si la ruta está permitida, y las plantillas ocultan los botones que ese rol no debe usar.
+El menú y la API se controlan juntos: Spring Security decide en el backend si la petición está permitida, y el frontend oculta los botones y enlaces que ese rol no debe usar. Ocultar un botón no protege nada por sí solo; la protección real es la del backend.
 
 ## Pantallas
+
+Son rutas del frontend (React). Cada una consulta la API REST del backend, descrita más abajo.
 
 | Ruta | Para qué sirve |
 | --- | --- |
@@ -41,15 +43,50 @@ El menú y las direcciones web se controlan juntos: Spring Security decide si la
 | `/usuarios` | Altas y cambios de usuarios. Solo el administrador. |
 | `/reportes` | Consulta y descarga en CSV de eventos y alertas. Administrador y analista. |
 
+## API REST
+
+Todas las rutas cuelgan de `/api`, envían y reciben JSON y, salvo el login, exigen `Authorization: Bearer <token>`. Los errores llevan `{"mensaje": "...", "errores": {"campo": "..."}}`; `errores` aparece cuando falla la validación de un formulario (400).
+
+| Método y ruta | Rol mínimo | Para qué sirve |
+| --- | --- | --- |
+| `POST /api/auth/login` | Público | Recibe `usuario` y `contrasena`; devuelve `token`, `expiraEn` y los datos del usuario. |
+| `GET /api/auth/me` | Cualquiera | Usuario del token actual. |
+| `GET /api/catalogos` | Cualquiera | Valores y etiquetas de tipos, estados, importancias, niveles y roles. |
+| `GET /api/panel` | Cualquiera | Conteos y lo más reciente. |
+| `GET /api/dispositivos`, `GET /api/dispositivos/{id}` | Cualquiera | Inventario. |
+| `POST /api/dispositivos`, `PUT /api/dispositivos/{id}` | Analista | Alta y edición. |
+| `GET /api/eventos?ip&tipo&desde&hasta` | Cualquiera | Historial con filtros (fechas `yyyy-MM-dd`). |
+| `POST /api/eventos` | Analista | Registra el evento y lo analiza; responde 201. |
+| `GET /api/alertas?nivel&estado&desde&hasta`, `GET /api/alertas/{id}` | Cualquiera | Lista y detalle con las reglas activadas. |
+| `PUT /api/alertas/{id}/estado` | Analista | Cambia estado y nota. |
+| `GET /api/reglas`, `GET /api/reglas/{id}` | Analista | Catálogo de reglas. |
+| `PUT /api/reglas/{id}` | Administrador | Ajusta puntuación, umbral, ventana y estado. |
+| `GET /api/reportes?ip&tipo&nivel&desde&hasta` | Analista | Eventos y alertas filtrados. |
+| `GET /api/reportes/eventos.csv`, `GET /api/reportes/alertas.csv` | Analista | Descarga en CSV. |
+| `GET/POST /api/usuarios`, `GET/PUT /api/usuarios/{id}` | Administrador | Gestión de usuarios. |
+
+«Analista» incluye al administrador.
+
 ## Cómo está organizado el código
 
-Todo el código Java vive en `src/main/java/com/cun/cyberguard`. Cada carpeta es una responsabilidad:
+El repositorio tiene dos aplicaciones independientes:
+
+```text
+backend/     API REST con Spring Boot (Java 21, Maven)
+frontend/    interfaz con React + Vite
+Docs/        documentación
+```
+
+### Backend
+
+Todo el código Java vive en `backend/src/main/java/com/cun/cyberguard`. Cada carpeta es una responsabilidad:
 
 ```text
 CyberguardApplication.java     arranque de Spring Boot
-config/                        seguridad, carga de datos de demostración
-web/                           pantallas: recibe el formulario y elige la vista
-web/form/                      datos que llegan del navegador, con validaciones
+config/                        seguridad (JWT, CORS), carga de datos de demostración
+web/                           controladores REST bajo /api y manejo de errores
+web/dto/                       datos que salen hacia el frontend (JSON)
+web/form/                      datos que llegan del frontend, con validaciones
 service/                       reglas de negocio y transacciones
 analysis/                      motor que decide si un evento es sospechoso
 analysis/reglas/               una clase por cada tipo de detección
@@ -58,17 +95,32 @@ domain/enums/                  valores fijos (rol, tipo de evento, nivel de ries
 repository/                    consultas a la base de datos
 ```
 
-Las pantallas están en `src/main/resources/templates` (Thymeleaf) y los estilos en `src/main/resources/static`. Las pruebas están en `src/test` y usan una base H2 en memoria, así que no necesitan MySQL.
+Las pruebas están en `backend/src/test` y usan una base H2 en memoria, así que no necesitan MySQL.
+
+### Frontend
+
+```text
+frontend/src/
+├── main.jsx, App.jsx        arranque y tabla de rutas
+├── api.js                   llamadas HTTP, token y manejo de errores
+├── auth.jsx                 sesión y rol del usuario
+├── catalogos.jsx            listas de valores (tipos, estados, roles) que sirve la API
+├── components/              menú, rutas protegidas, piezas de formulario
+├── pages/                   una pantalla por archivo
+└── index.css                estilos
+```
 
 ## Arquitectura
 
-Es una aplicación web de **una sola pieza**, organizada en capas. El navegador pide una página, Spring Boot responde con HTML ya armado. No hay una API aparte ni una aplicación de frontend independiente.
+Son **dos aplicaciones separadas** que se hablan por HTTP. El frontend (React) corre en el navegador y pide datos en JSON a la API del backend (Spring Boot). El backend no genera HTML y no guarda sesión: cada petición lleva un token JWT.
 
 ```text
 Navegador
+    │  React (frontend/)    pantallas, formularios, rutas
     │
+    │  HTTP + JSON, cabecera Authorization: Bearer <token>
     ▼
-Interfaz          web/ + templates/     formularios, listas, panel
+API REST          web/ + web/dto/      recibe JSON, valida y responde JSON
     │
     ▼
 Negocio           service/              validar, guardar, consultar
@@ -87,7 +139,7 @@ Cada capa habla con la de abajo a través de clases concretas de Spring (inyecci
 
 ### Qué pasa al registrar un evento
 
-1. `EventoController` recibe el formulario y comprueba que los campos sean válidos.
+1. `EventoController` (`POST /api/eventos`) recibe el JSON y comprueba que los campos sean válidos.
 2. `EventoService.registrar` exige un puerto cuando el tipo es «acceso a puerto», busca el dispositivo por el seleccionado o por la IP, y guarda el evento.
 3. Si el dispositivo existe y no está marcado como desconocido, actualiza su última actividad.
 4. `MotorAnalisis.analizar` recorre solo las reglas activas.
@@ -156,13 +208,19 @@ La zona horaria de la aplicación y de JDBC es `America/Bogota`.
 
 **Una alerta por evento analizado.** Si en el mismo momento saltan tres reglas, el resultado es una sola alerta con la suma de puntos y la lista de reglas. Así el seguimiento (pendiente, en revisión, atendida, cerrada) tiene un solo lugar.
 
-**Formularios aparte de las entidades.** `UsuarioForm`, `EventoForm` y el resto reciben lo que escribe el usuario y llevan las validaciones de Jakarta. La entidad JPA no se rellena directamente desde el HTML. Eso evita, por ejemplo, que un formulario de edición de usuario reescriba la contraseña cifrada por accidente.
+**Formularios y DTO aparte de las entidades.** `UsuarioForm`, `EventoForm` y el resto reciben lo que envía el frontend y llevan las validaciones de Jakarta. Hacia afuera, la API responde con DTO (`UsuarioDto`, `AlertaDto`…), no con entidades JPA. Así el JSON nunca incluye la contraseña cifrada y una entidad con relaciones perezosas no rompe la serialización.
 
-**Thymeleaf en el servidor.** HTML, CSS y un poco de JavaScript bastan para las listas, filtros y formularios. Los permisos se reflejan en la misma plantilla con Spring Security, sin mantener otra aplicación.
+**Backend y frontend separados.** El backend expone una API REST y no sabe nada de pantallas; el frontend es una aplicación React que se puede compilar y desplegar por su cuenta. Es la misma funcionalidad que tenía la versión con Thymeleaf, con otra frontera entre las dos partes. Las listas de valores (tipos de evento, estados, roles) las sirve `GET /api/catalogos`, para no repetir los enums en JavaScript.
 
-**`open-in-view` desactivado.** Hibernate no mantiene una conexión abierta mientras se dibuja el HTML. Las lecturas que la pantalla necesita ocurren dentro del servicio, en una transacción. El detalle de una alerta, por ejemplo, carga las reglas antes de salir del servicio.
+**`open-in-view` desactivado.** Hibernate no mantiene una conexión abierta mientras se arma la respuesta. Las lecturas necesarias ocurren dentro del servicio, en una transacción. El detalle de una alerta, por ejemplo, carga las reglas antes de salir del servicio, y el panel usa un DTO de alerta sin reglas.
 
-**Seguridad por URL, con formulario de login.** Las rutas públicas son el login, los estilos, el script y la página de error. El resto exige sesión. Crear usuarios, editar reglas, registrar dispositivos o eventos, cambiar alertas y descargar reportes piden el rol que corresponde. Quien no tiene permiso ve `/acceso-denegado`.
+**Autenticación con JWT.** `POST /api/auth/login` valida usuario y contraseña (BCrypt) y devuelve un token firmado con HS256 que dura 120 minutos y lleva el usuario y su rol. Spring Security lo valida en cada petición y no crea sesión en el servidor (`STATELESS`), por eso CSRF está desactivado: sin cookies de sesión no hay ataque CSRF que prevenir. Solo `/api/auth/login` es público. Sin token o con uno inválido o vencido la respuesta es 401; con token pero sin el rol adecuado, 403. Cerrar sesión borra el token en el navegador. Como el token es autónomo, desactivar un usuario no lo expulsa hasta que su token venza. El secreto de firma se define con `CYBERGUARD_JWT_SECRET`.
+
+**El token vive en `sessionStorage`.** Se borra al cerrar la pestaña y no se envía solo con cada petición. A cambio, un script malicioso en la página podría leerlo, igual que con `localStorage`; por eso el frontend no inserta HTML sin escapar.
+
+**CORS.** El backend solo acepta peticiones de los orígenes de `CYBERGUARD_CORS_ORIGENES` (por defecto `http://localhost:5173`). En desarrollo Vite reenvía `/api` al backend y el navegador ve un solo origen.
+
+**Los CSV se descargan con `fetch`.** Un enlace normal no puede enviar la cabecera `Authorization`, así que el frontend pide el archivo con el token y lo guarda desde un `Blob`.
 
 **MySQL de XAMPP en local y H2 solo en pruebas.** La URL crea la base `cyberguard` si no existe. Hibernate no lee la metadata JDBC de MariaDB (el motor que trae XAMPP), porque esa lectura falla con la columna `RESERVED`; por eso `allow_jdbc_metadata_access` está en falso y el dialecto se indica a mano.
 
@@ -170,22 +228,29 @@ La zona horaria de la aplicación y de JDBC es `America/Bogota`.
 
 **CSV con punto y coma y marca BOM.** Los reportes se abren en Excel con la configuración habitual en español, y el texto conserva tildes.
 
-**El menú no usa `#request`.** Thymeleaf 3.1 ya no expone la petición HTTP dentro de la plantilla. `NavegacionAdvice` publica la ruta actual para marcar la sección activa.
-
 ## Pruebas
 
-`mvnw.cmd test` ejecuta tres grupos, todos contra H2:
+`mvnw.cmd test`, dentro de `backend/`, ejecuta tres grupos, todos contra H2:
 
 - `ClasificadorRiesgoTest`: los cortes de puntuación (bajo, medio, alto, crítico) y el tope 0–100.
 - `MotorAnalisisTest`: que las reglas de ejemplo disparan la detección esperada.
-- `SeguridadAccesoTest`: que cada rol entra solo a lo que le corresponde.
+- `SeguridadAccesoTest`: login y token, 401 sin credenciales o con token falso, 403 según el rol, errores de validación (400) y recurso inexistente (404), y que registrar un evento, listar y actualizar alertas, el panel y los reportes responden JSON sin errores de carga.
+
+El frontend no tiene pruebas automáticas; `npm run build` comprueba que compila.
 
 ## Cómo arrancarla
 
-Hace falta JDK 21 o superior y MySQL de XAMPP en marcha. Si `root` tiene contraseña, se cambia en `src/main/resources/application.properties`.
+Hace falta JDK 21 o superior, Node.js 20 o superior y MySQL de XAMPP en marcha. Si `root` tiene contraseña, se cambia en `backend/src/main/resources/application.properties`. Se levantan dos procesos, cada uno en su terminal:
 
 ```bat
+cd backend
 mvnw.cmd spring-boot:run
 ```
 
-La aplicación queda en http://localhost:8080.
+```bat
+cd frontend
+npm install
+npm run dev
+```
+
+La API queda en http://localhost:8080 y la aplicación en http://localhost:5173. Se entra por el 5173.

@@ -1,6 +1,6 @@
 # Base de datos de CyberGuard
 
-CyberGuard guarda usuarios, el inventario de equipos, los eventos registrados a mano, el catálogo de reglas y las alertas que produce el análisis. El motor es **MySQL** (en XAMPP suele ser MariaDB) y el esquema lo crea Hibernate a partir de las entidades de `src/main/java/com/cun/cyberguard/domain`.
+CyberGuard guarda usuarios, el inventario de equipos, los eventos registrados a mano, el catálogo de reglas y las alertas que produce el análisis. El motor es **MySQL** (en XAMPP suele ser MariaDB) y el esquema lo crea Hibernate a partir de las entidades de `backend/src/main/java/com/cun/cyberguard/domain`.
 
 La base se llama `cyberguard`. La URL de conexión la crea si todavía no existe. La zona horaria de la aplicación y de JDBC es `America/Bogota`.
 
@@ -193,9 +193,9 @@ Las columnas únicas (`usuario`, `correo`, `direccion_ip`, `codigo`) llevan índ
 
 | Pieza | Ruta |
 | --- | --- |
-| Entidades | `src/main/java/com/cun/cyberguard/domain` |
-| Enums | `src/main/java/com/cun/cyberguard/domain/enums` |
-| Consultas | `src/main/java/com/cun/cyberguard/repository` |
-| Conexión y dialecto | `src/main/resources/application.properties` |
+| Entidades | `backend/src/main/java/com/cun/cyberguard/domain` |
+| Enums | `backend/src/main/java/com/cun/cyberguard/domain/enums` |
+| Consultas | `backend/src/main/java/com/cun/cyberguard/repository` |
+| Conexión y dialecto | `backend/src/main/resources/application.properties` |
 | Base de pruebas | `src/test/resources/application-test.properties` |
-| Carga inicial | `src/main/java/com/cun/cyberguard/config/DataInitializer.java` |
+| Carga inicial | `backend/src/main/java/com/cun/cyberguard/config/DataInitializer.java` |
