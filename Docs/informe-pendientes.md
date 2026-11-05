@@ -32,7 +32,7 @@ Las fuentes Mermaid de las figuras 2, 3, 5, 6, 9 y 10 también se actualizaron.
 ## Pendiente para cerrar la segunda entrega
 
 - **Imágenes de las figuras.** Ya regeneradas: los PNG de las figuras 2, 3, 5, 6, 9 y 10 corresponden a sus fuentes actualizadas. Para regenerarlas sin descargar el navegador de puppeteer, se puede pasar `-p` con un JSON que apunte a Edge (`{"executablePath":"C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"}`).
-- **Archivos exportados.** `PROYECTO CYBERGUARD.docx.pdf`, `Proyecto_CyberGuard.pdf` y las presentaciones `.pptx` se generaron con el texto anterior. Hay que volver a exportarlos desde el documento actualizado.
+- **Archivos exportados.** `PROYECTO CYBERGUARD.docx` y `PROYECTO CYBERGUARD.docx.pdf` se regeneraron el 5 de noviembre de 2026 desde el `.md` actualizado, con formato APA 7, tres gráficas nuevas (figuras 10, 12 y 13) y tres referencias nuevas (Fielding, 2000; Kent y Souppaya, 2006; Liao et al., 2013). `Proyecto_CyberGuard.pdf` y las presentaciones `.pptx`, que tenían el texto anterior, se eliminaron.
 
 ## Pendientes técnicos para la tercera entrega
 

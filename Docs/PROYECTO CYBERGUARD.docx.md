@@ -26,11 +26,11 @@ Ingeniería de Sistemas
 Programa de Ingeniería de Sistemas  
 Facultad de Ingeniería  
 Sincelejo, Colombia  
-2026
+5 de noviembre de 2026
 
 ---
 
-## CONTENIDO
+## Contenido
 
 1. Introducción
 2. Descripción del problema
@@ -56,25 +56,25 @@ Anexo A. Índice de figuras
 
 ---
 
-## 1. INTRODUCCIÓN
+## 1. Introducción
 
 El crecimiento de las redes informáticas ha permitido que empresas, instituciones educativas y otras organizaciones conecten una gran cantidad de dispositivos para compartir información y utilizar servicios de manera rápida. Este crecimiento también trae retos para identificar, supervisar y gestionar los eventos que pueden afectar la seguridad de la información.
 
 En una infraestructura de red pueden coexistir computadores, teléfonos, servidores, impresoras, cámaras y otros dispositivos que generan distintos tipos de actividad. Sin mecanismos para registrar y analizar esos eventos, resulta difícil saber cuándo una actividad se sale de los patrones esperados: un dispositivo desconocido, varios intentos de conexión seguidos, actividad repetitiva o accesos a muchos puertos en poco tiempo.
 
-La gestión de eventos de seguridad requiere identificarlos, analizarlos y decidir qué hacer ante las situaciones que puedan representar un riesgo (National Institute of Standards and Technology [NIST], 2012). Los marcos actuales de ciberseguridad también resaltan la importancia de identificar y analizar los riesgos asociados con los sistemas y activos tecnológicos (NIST, 2024).
+La gestión de eventos de seguridad requiere identificarlos, analizarlos y decidir qué hacer ante las situaciones que puedan representar un riesgo (National Institute of Standards and Technology [NIST], 2012). Para que ese análisis sea posible, los eventos deben registrarse de forma ordenada, con su marca de tiempo y su origen, y revisarse con periodicidad; Kent y Souppaya (2006) señalan que una gestión de registros deficiente impide detectar a tiempo los incidentes y reconstruir lo ocurrido. Los marcos actuales de ciberseguridad también resaltan la importancia de identificar y analizar los riesgos asociados con los sistemas y activos tecnológicos (NIST, 2024).
 
 A partir de esta problemática surge CyberGuard, una aplicación web formada por una API REST en Java con Spring Boot y un cliente web en React, para registrar, analizar y clasificar eventos de una red autorizada. En la primera entrega se definieron el problema, los objetivos, el alcance, los requerimientos y la arquitectura. Esta segunda entrega documenta el diseño detallado, la solución construida, el estado del desarrollo, las pruebas ejecutadas, los problemas resueltos y lo que queda para la tercera entrega. Todo lo descrito corresponde al código fuente actual del repositorio. Durante esta entrega la aplicación pasó de un monolito con vistas renderizadas en el servidor a dos aplicaciones separadas (API y cliente); el documento describe la versión actual.
 
 ---
 
-## 2. DESCRIPCIÓN DEL PROBLEMA
+## 2. Descripción del problema
 
 Una organización puede tener muchos dispositivos conectados a la misma infraestructura de red. A medida que aumentan los equipos y servicios, también aumenta la cantidad de eventos que se producen cada día.
 
 El problema no es la existencia de muchos dispositivos, sino la dificultad para decidir cuándo una actividad merece atención. Revisar a mano grandes cantidades de eventos toma tiempo y retrasa la identificación de ciertos comportamientos.
 
-Por ejemplo, un administrador puede encontrar un dispositivo que aparece por primera vez en la red, una dirección IP con una cantidad inusual de solicitudes o un equipo que intenta conectarse a varios puertos en pocos minutos. Estas situaciones no prueban que exista un ataque, pero sí requieren revisión. La identificación y el análisis de eventos son una parte central de la gestión de incidentes, porque permiten reunir información y decidir si hace falta una respuesta (NIST, 2012). Los sistemas de detección de intrusos basados en anomalías parten de la misma idea: comparar la actividad observada con un comportamiento esperado y señalar las desviaciones (Scarfone & Mell, 2007; Chandola et al., 2009).
+Por ejemplo, un administrador puede encontrar un dispositivo que aparece por primera vez en la red, una dirección IP con una cantidad inusual de solicitudes o un equipo que intenta conectarse a varios puertos en pocos minutos. Estas situaciones no prueban que exista un ataque, pero sí requieren revisión. La identificación y el análisis de eventos son una parte central de la gestión de incidentes, porque permiten reunir información y decidir si hace falta una respuesta (NIST, 2012). Los sistemas de detección de intrusos basados en anomalías parten de la misma idea: comparar la actividad observada con un comportamiento esperado y señalar las desviaciones (Scarfone y Mell, 2007; Chandola et al., 2009). En la revisión de Liao et al. (2013), los métodos de detección se agrupan en basados en firmas, en anomalías y en análisis de protocolos con estado; los basados en anomalías detectan comportamientos nuevos, pero dependen de definir bien qué es «normal» y tienden a producir falsos positivos. CyberGuard adopta una variante sencilla y explicable de ese enfoque: umbrales explícitos sobre la actividad de cada dirección IP dentro de una ventana de tiempo.
 
 Cuando la información se revisa solo de forma manual, el administrador tiene dificultades para relacionar eventos, dispositivos, fechas, frecuencias y condiciones. Eso produce retrasos al identificar comportamientos potencialmente anómalos.
 
@@ -88,7 +88,7 @@ CyberGuard no pretende sustituir plataformas profesionales de seguridad (IDS, SI
 
 ---
 
-## 3. JUSTIFICACIÓN
+## 3. Justificación
 
 CyberGuard se propone como una alternativa académica y tecnológica para abordar el monitoreo y análisis de eventos de seguridad en redes.
 
@@ -108,7 +108,7 @@ Finalmente, el desarrollo se realiza solo sobre redes, dispositivos y datos para
 
 ---
 
-## 4. OBJETIVO GENERAL Y OBJETIVOS ESPECÍFICOS
+## 4. Objetivo general y objetivos específicos
 
 ### 4.1 Objetivo general
 
@@ -125,12 +125,12 @@ Desarrollar una plataforma de software denominada CyberGuard, basada principalme
 | Objetivo | Estado | Evidencia en el proyecto |
 | :---- | :---- | :---- |
 | 1. Requerimientos, arquitectura y base de datos | Cumplido | Secciones 6, 9 y 11; paquetes `domain`, `repository`, `service`, `web`; `Docs/base-de-datos.md` |
-| 2. Reglas, clasificación de riesgo e interfaz de consulta | Cumplido | Paquete `analysis`, seis reglas en `analysis/reglas`, `ClasificadorRiesgo`, API REST en `web/` y cliente React con 14 páginas en `frontend/src/pages` |
+| 2. Reglas, clasificación de riesgo e interfaz de consulta | Cumplido | Paquete `analysis`, seis reglas en `analysis/reglas`, `ClasificadorRiesgo`, API REST en `web/` y cliente React con 15 páginas en `frontend/src/pages` |
 | 3. Metodología y pruebas | En curso | Scrum por sprints; 62 pruebas del backend y 24 del cliente aprobadas; cobertura con JaCoCo y más pantallas del cliente pendientes (sección 17) |
 
 ---
 
-## 5. ALCANCE
+## 5. Alcance
 
 ### 5.1 Alcance
 
@@ -146,6 +146,7 @@ CyberGuard es una aplicación web académica para registrar, analizar y clasific
 - Panel con indicadores y actividad reciente.
 - Reportes de eventos y alertas con descarga en CSV.
 - Base de datos MySQL/MariaDB creada y actualizada por Hibernate.
+- Página informativa interactiva (`/info`) que explica la arquitectura, la base de datos, el motor de reglas y la seguridad.
 - Datos de demostración que se cargan solos la primera vez.
 - Pruebas automáticas del backend sobre una base H2 en memoria y del cliente con Vitest.
 
@@ -164,7 +165,7 @@ CyberGuard es una aplicación web académica para registrar, analizar y clasific
 
 ---
 
-## 6. REQUERIMIENTOS FUNCIONALES Y NO FUNCIONALES
+## 6. Requerimientos funcionales y no funcionales
 
 ### 6.1 Requerimientos funcionales
 
@@ -201,7 +202,7 @@ La columna «Implementación» indica la clase o ruta del código que atiende ca
 
 ---
 
-## 7. USUARIOS O ACTORES DEL SISTEMA
+## 7. Usuarios o actores del sistema
 
 CyberGuard maneja tres roles de usuario (enum `Rol`) y un actor interno. Los permisos son acumulativos: el analista puede todo lo que puede consulta, y el administrador todo lo que puede el analista.
 
@@ -229,23 +230,23 @@ CyberGuard maneja tres roles de usuario (enum `Rol`) y un actor interno. Los per
 
 Una petición sin token, con un token vencido o con la firma alterada recibe 401, y el cliente vuelve a la pantalla de login. Con un token válido pero sin el rol necesario la API responde 403. El cliente aplica los mismos permisos a sus rutas (`RutaProtegida.jsx`): oculta las opciones que el rol no puede usar y, si se abre la dirección a mano, muestra «Acceso denegado». La protección real está en la API; la del cliente solo evita mostrar pantallas inútiles.
 
-![Figura 10. Permisos por rol](img/10-permisos-roles.png)
+![Figura 1. Permisos por rol](img/10-permisos-roles.png)
 
-*Figura 10. Permisos por rol sobre los endpoints de la API según `SecurityConfig`. Elaboración propia.*
+*Figura 1. Permisos por rol sobre los endpoints de la API según `SecurityConfig`. Elaboración propia.*
 
 ---
 
-## 8. DIAGRAMAS CORRESPONDIENTES AL PROYECTO
+## 8. Diagramas correspondientes al proyecto
 
-Los diagramas siguen la notación UML 2.5 (Object Management Group [OMG], 2017) y el modelo entidad-relación (Chen, 1976). Se elaboraron con Mermaid (Mermaid, s. f.) a partir del código actual. Las imágenes están en `Docs/img/` y sus fuentes editables en `Docs/img/fuentes/` (rutas del proyecto que estan en github).
+Los diagramas siguen la notación UML 2.5 (Object Management Group [OMG], 2017) y el modelo entidad-relación (Chen, 1976). Se elaboraron con Mermaid (Mermaid, s. f.) a partir del código actual. Las imágenes están en `Docs/img/` y sus fuentes editables en `Docs/img/fuentes/` (rutas del repositorio en GitHub).
 
 ### 8.1 Diagrama de casos de uso
 
 Muestra qué puede hacer cada actor. Registrar un evento incluye su análisis, y el análisis incluye la clasificación y la creación de la alerta.
 
-![Figura 1. Diagrama de casos de uso](img/01-casos-de-uso.png)
+![Figura 2. Diagrama de casos de uso](img/01-casos-de-uso.png)
 
-*Figura 1. Diagrama de casos de uso de CyberGuard. Elaboración propia.*
+*Figura 2. Diagrama de casos de uso de CyberGuard. Elaboración propia.*
 
 | Caso de uso | Actor principal | Descripción breve |
 | :---- | :---- | :---- |
@@ -327,7 +328,7 @@ Se ejecutan dos procesos: el cliente React (servidor de Vite en el puerto 5173 d
 
 ---
 
-## 9. DISEÑO DE LA SOLUCIÓN
+## 9. Diseño de la solución
 
 ### 9.1 Flujo general
 
@@ -388,7 +389,11 @@ Las estructuras de datos usadas son un `HashMap` para ubicar la estrategia por c
 | 51 a 80 | Alto |
 | 81 a 100 | Crítico |
 
-Una alerta alta o crítica es una señal para que una persona la revise, no un dictamen de que hubo un ataque.
+Una alerta alta o crítica es una señal para que una persona la revise, no un dictamen de que hubo un ataque. La Figura 10 compara la puntuación inicial de cada regla con los cortes de nivel: ninguna regla por sí sola supera los 30 puntos, así que los niveles alto y crítico solo se alcanzan cuando varias reglas se cumplen en el mismo evento.
+
+![Figura 10. Puntuación por regla y cortes de riesgo](img/12-puntuacion-reglas.png)
+
+*Figura 10. Puntuación inicial de cada regla de detección frente a los cortes de nivel de riesgo de `ClasificadorRiesgo`. Elaboración propia a partir de `DataInitializer`.*
 
 ### 9.5 Decisiones de diseño
 
@@ -418,13 +423,14 @@ El cliente es una aplicación de una sola página en React. Un componente base (
 | `/reglas`, `/reglas/:id/editar` | Catálogo y edición de parámetros | Catálogo: analista y administrador; edición: administrador |
 | `/reportes` | Consulta y descarga CSV | Analista y administrador |
 | `/usuarios`, `/usuarios/nuevo`, `/usuarios/:id/editar` | Gestión de cuentas | Administrador |
+| `/info` | Página informativa del proyecto | Todos |
 | cualquier otra | «Página no encontrada» (`NoEncontrada.jsx`) | Todos |
 
 Las listas de opciones (tipos de evento, niveles, estados, roles) se cargan una vez desde `GET /api/catalogos`, de modo que el cliente no repite los enums de Java.
 
 ---
 
-## 10. TECNOLOGÍAS Y HERRAMIENTAS UTILIZADAS
+## 10. Tecnologías y herramientas utilizadas
 
 La primera entrega dejaba abiertas algunas opciones («PostgreSQL o MySQL»). La tabla muestra lo que se usa en el código actual, según `pom.xml` y `application.properties`.
 
@@ -454,13 +460,13 @@ La primera entrega dejaba abiertas algunas opciones («PostgreSQL o MySQL»). La
 
 ---
 
-## 11. ARQUITECTURA PROPUESTA
+## 11. Arquitectura propuesta
 
-CyberGuard está formado por dos aplicaciones. El cliente web en React corre en el navegador y llama a una API REST en Spring Boot, que está organizada en capas (Fowler, 2002). El cliente envía y recibe JSON y adjunta en cada petición el token JWT obtenido al iniciar sesión; la API no guarda sesiones.
+CyberGuard está formado por dos aplicaciones. El cliente web en React corre en el navegador y llama a una API REST en Spring Boot, que está organizada en capas (Fowler, 2002). El cliente envía y recibe JSON y adjunta en cada petición el token JWT obtenido al iniciar sesión; la API no guarda sesiones. La API sigue el estilo arquitectónico REST: cada recurso (dispositivos, eventos, alertas, reglas) se identifica con una URL, se opera con los métodos estándar de HTTP y cada petición lleva toda la información necesaria para atenderla, sin estado compartido entre cliente y servidor (Fielding, 2000).
 
-![Figura 2. Arquitectura por capas](img/02-arquitectura-capas.png)
+![Figura 11. Arquitectura por capas](img/02-arquitectura-capas.png)
 
-*Figura 2. Arquitectura de CyberGuard: cliente React y API REST por capas. Elaboración propia.*
+*Figura 11. Arquitectura de CyberGuard: cliente React y API REST por capas. Elaboración propia.*
 
 | Capa | Paquete | Responsabilidad |
 | :---- | :---- | :---- |
@@ -497,21 +503,25 @@ frontend/src
 ├── api.js, auth.jsx             cliente HTTP con token y contexto de sesión
 ├── catalogos.jsx, util.js       catálogos de la API y utilidades
 ├── components/                  Layout, RutaProtegida, controles y hook de formularios
-├── pages/                       14 páginas
+├── pages/                       15 páginas
 └── *.test.js(x), test/          suite Vitest (24 pruebas)
 ```
 
-En total hay 70 archivos Java en `backend/src/main` y unas 5 100 líneas de código entre el backend (Java, fuente y pruebas) y el cliente (JavaScript).
+En total hay 70 archivos Java en `backend/src/main` y unas 7 200 líneas de código entre el backend (Java, fuente y pruebas) y el cliente (JavaScript). La Figura 12 muestra su reparto: cerca de una cuarta parte del código del backend corresponde a pruebas automáticas.
+
+![Figura 12. Líneas de código por componente](img/13-lineas-codigo.png)
+
+*Figura 12. Líneas de código del backend y del cliente, separadas en código fuente y código de pruebas. Elaboración propia a partir del repositorio (5 de noviembre de 2026).*
 
 ---
 
-## 12. DESCRIPCIÓN DE LAS FUNCIONALIDADES DESARROLLADAS
+## 12. Descripción de las funcionalidades desarrolladas
 
 ### 12.1 Autenticación y control de acceso
 
 - `POST /api/auth/login` recibe usuario y contraseña y devuelve un token JWT firmado con HS256, válido por 120 minutos, con el usuario y su rol. `GET /api/auth/me` devuelve los datos del usuario del token.
 - `UsuarioDetailsService` carga el usuario desde la base; si está inactivo, no puede entrar («La cuenta está inactiva»).
-- Contraseñas cifradas con BCrypt (Provos & Mazières, 1999).
+- Contraseñas cifradas con BCrypt (Provos y Mazières, 1999).
 - La API es sin estado: cada petición lleva el token en la cabecera `Authorization: Bearer`. Sin token, con el token vencido o con la firma alterada responde 401; sin el rol necesario, 403.
 - La clave de firma sale de `CYBERGUARD_JWT_SECRET` y la aplicación no arranca si tiene menos de 32 bytes.
 - El cliente guarda el token en `sessionStorage`, que se borra al cerrar la pestaña. Ante un 401 cierra la sesión y vuelve al login; al pulsar «Salir» borra el token y muestra «Sesión cerrada».
@@ -569,13 +579,19 @@ En total hay 70 archivos Java en `backend/src/main` y unas 5 100 líneas de cód
 - Consulta de eventos (por IP, tipo y fechas) y de alertas (por nivel, estado y fechas).
 - Descarga en CSV separado por punto y coma, con BOM UTF-8, y con escape de comillas y saltos de línea. El cliente pide el archivo con el token y lo guarda desde el navegador, porque un enlace directo no podría enviar la cabecera de autorización.
 
-### 12.10 Datos de demostración
+### 12.10 Página informativa
+
+- Ruta `/info`, disponible para cualquier usuario autenticado desde el enlace «Info» del menú.
+- Recorre en diez secciones qué es CyberGuard, cómo fluye un evento, la arquitectura por capas, el modelo de datos con su cardinalidad y normalización, el motor de reglas, la seguridad por roles, la gobernanza del equipo y las *skills* de asistentes de IA usadas en el desarrollo.
+- Los diagramas se dibujan en SVG dentro del propio cliente (`components/info/Diagramas.jsx`) y el texto vive en `components/info/contenido.js`, separado de la presentación.
+
+### 12.11 Datos de demostración
 
 `DataInitializer` crea, solo si las tablas están vacías: los tres usuarios, las seis reglas, tres dispositivos (`PC-Laboratorio` 192.168.10.11, `Servidor-Academico` 192.168.10.20, `Camara-Pasillo` 192.168.10.30) y una serie de eventos de ejemplo que activan cada tipo de regla: actividad inusual, un equipo no inventariado, ocho intentos de conexión, accesos a cinco puertos distintos y cuatro eventos de importancia alta.
 
 ---
 
-## 13. AVANCE DEL DESARROLLO
+## 13. Avance del desarrollo
 
 ### 13.1 Avance por fases de la planificación
 
@@ -604,7 +620,7 @@ En total hay 70 archivos Java en `backend/src/main` y unas 5 100 líneas de cód
 | Reglas | Completo | Solo se editan parámetros, no se crean reglas nuevas desde la interfaz. |
 | Panel | Completo | Indicadores numéricos; sin gráficas. |
 | Reportes | Completo | Solo CSV. |
-| Cliente web (React) | Completo | 14 páginas; 24 pruebas con Vitest (api, auth, rutas, login y UI). |
+| Cliente web (React) | Completo | 15 páginas, incluida la página informativa; 24 pruebas con Vitest (api, auth, rutas, login y UI). |
 | Pruebas automáticas | En curso | 62 del backend y 24 del cliente; falta medir cobertura con JaCoCo y ampliar pantallas de negocio del cliente. |
 
 Los 13 requerimientos funcionales y los 8 no funcionales tienen implementación en el código. El trabajo pendiente se concentra en cobertura, trazabilidad y funciones complementarias (sección 17).
@@ -620,10 +636,13 @@ Los 13 requerimientos funcionales y los 8 no funcionales tienen implementación 
 | `78aa6cb` | 2026-09-30 | Documento de la segunda entrega |
 | `5d875b9` | 2026-09-30 | Mejoras de nulabilidad y documentación |
 | `299aacf` | 2026-10-05 | Separación en API REST con JWT y cliente React |
+| `8dd6268` | 2026-11-05 | Alineación de identificadores, análisis y configuración (`.env`) |
+| `e7e22fb` | 2026-11-05 | *Skills* de asistentes de IA y su documentación |
+| `007ed7b` | 2026-11-05 | Página informativa y ampliación de pruebas (62 backend, 24 cliente) |
 
 ---
 
-## 14. EVIDENCIAS DEL SISTEMA
+## 14. Evidencias del sistema
 
 Las capturas se tomaron de la aplicación en ejecución con los datos de demostración. Están en la carpeta `screenshots/` del repositorio.
 
@@ -731,7 +750,7 @@ Las capturas se tomaron de la aplicación en ejecución con los datos de demostr
 
 ---
 
-## 15. PRUEBAS REALIZADAS HASTA EL MOMENTO
+## 15. Pruebas realizadas hasta el momento
 
 ### 15.1 Pruebas automáticas del backend
 
@@ -780,6 +799,12 @@ Se ejecutan con `npm test` en `frontend/` (Vitest + Testing Library + jsdom).
 
 **Última ejecución: 5 de noviembre de 2026. Resultado: 24 pruebas, 0 fallos.**
 
+La Figura 13 resume las 86 pruebas automáticas por clase o archivo. Las reglas de detección y el control de acceso de la API concentran la mayor cantidad, porque son las partes donde un error tiene más consecuencias: una regla mal evaluada genera alertas falsas o las omite, y un permiso mal configurado expone datos.
+
+![Figura 13. Pruebas automáticas por clase](img/11-pruebas-por-clase.png)
+
+*Figura 13. Número de pruebas automáticas por clase del backend (JUnit 5) y por archivo del cliente (Vitest). Elaboración propia a partir de la ejecución del 5 de noviembre de 2026.*
+
 | Archivo | Pruebas | Qué verifica | Resultado |
 | :---- | :---- | :---- | :---- |
 | `api.test.js` | 6 | Sesión, query params, Bearer, 401/403 y fallo de red. | Aprobadas |
@@ -820,7 +845,7 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 
 ---
 
-## 16. PROBLEMAS ENCONTRADOS Y CÓMO FUERON SOLUCIONADOS
+## 16. Problemas encontrados y cómo fueron solucionados
 
 | # | Problema o riesgo identificado | Causa | Solución aplicada |
 | :---- | :---- | :---- | :---- |
@@ -847,7 +872,7 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 
 ---
 
-## 17. FUNCIONALIDADES PENDIENTES PARA LA TERCERA ENTREGA
+## 17. Funcionalidades pendientes para la tercera entrega
 
 | Prioridad | Funcionalidad | Descripción |
 | :---- | :---- | :---- |
@@ -867,7 +892,7 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 
 ---
 
-## 18. CONCLUSIONES PARCIALES
+## 18. Conclusiones parciales
 
 1. CyberGuard pasó de propuesta a aplicación funcional. Los 13 requerimientos funcionales y los 8 no funcionales tienen implementación en el código, y los módulos planeados en la primera entrega (usuarios, dispositivos, eventos, motor de análisis, reglas, alertas, panel y reportes) están integrados.
 
@@ -885,19 +910,25 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 
 ---
 
-## 19. REFERENCIAS
+## 19. Referencias
 
-Chandola, V., Banerjee, A., & Kumar, V. (2009). Anomaly detection: A survey. *ACM Computing Surveys, 41*(3), Artículo 15. https://doi.org/10.1145/1541880.1541882
+Chandola, V., Banerjee, A. y Kumar, V. (2009). Anomaly detection: A survey. *ACM Computing Surveys, 41*(3), Artículo 15. https://doi.org/10.1145/1541880.1541882
 
 Chen, P. P.-S. (1976). The entity-relationship model: Toward a unified view of data. *ACM Transactions on Database Systems, 1*(1), 9–36. https://doi.org/10.1145/320434.320440
 
+Fielding, R. T. (2000). *Architectural styles and the design of network-based software architectures* [Tesis doctoral, University of California, Irvine]. https://ics.uci.edu/~fielding/pubs/dissertation/top.htm
+
 Fowler, M. (2002). *Patterns of enterprise application architecture*. Addison-Wesley.
 
-Gamma, E., Helm, R., Johnson, R., & Vlissides, J. (1994). *Design patterns: Elements of reusable object-oriented software*. Addison-Wesley.
+Gamma, E., Helm, R., Johnson, R. y Vlissides, J. (1994). *Design patterns: Elements of reusable object-oriented software*. Addison-Wesley.
 
-Jones, M., Bradley, J., & Sakimura, N. (2015). *JSON Web Token (JWT)* (RFC 7519). Internet Engineering Task Force. https://doi.org/10.17487/RFC7519
+Jones, M., Bradley, J. y Sakimura, N. (2015). *JSON Web Token (JWT)* (RFC 7519). Internet Engineering Task Force. https://doi.org/10.17487/RFC7519
 
 JUnit Team. (s. f.). *JUnit 5 user guide*. https://junit.org/junit5/docs/current/user-guide/
+
+Kent, K. y Souppaya, M. (2006). *Guide to computer security log management* (NIST Special Publication 800-92). National Institute of Standards and Technology. https://doi.org/10.6028/NIST.SP.800-92
+
+Liao, H.-J., Lin, C.-H. R., Lin, Y.-C. y Tung, K.-Y. (2013). Intrusion detection system: A comprehensive review. *Journal of Network and Computer Applications, 36*(1), 16–24. https://doi.org/10.1016/j.jnca.2012.09.004
 
 Martin, R. C. (2017). *Clean architecture: A craftsman's guide to software structure and design*. Prentice Hall.
 
@@ -921,11 +952,11 @@ OWASP Foundation. (2021a). *OWASP Top 10: The ten most critical web application 
 
 OWASP Foundation. (2021b). *OWASP Application Security Verification Standard 4.0.3*. https://owasp.org/www-project-application-security-verification-standard/
 
-Provos, N., & Mazières, D. (1999). A future-adaptable password scheme. En *Proceedings of the 1999 USENIX Annual Technical Conference* (pp. 81–91). USENIX Association.
+Provos, N. y Mazières, D. (1999). A future-adaptable password scheme. En *Proceedings of the 1999 USENIX Annual Technical Conference* (pp. 81–91). USENIX Association.
 
-Scarfone, K., & Mell, P. (2007). *Guide to intrusion detection and prevention systems (IDPS)* (NIST Special Publication 800-94). National Institute of Standards and Technology. https://doi.org/10.6028/NIST.SP.800-94
+Scarfone, K. y Mell, P. (2007). *Guide to intrusion detection and prevention systems (IDPS)* (NIST Special Publication 800-94). National Institute of Standards and Technology. https://doi.org/10.6028/NIST.SP.800-94
 
-Schwaber, K., & Sutherland, J. (2020). *The Scrum guide*. https://scrumguides.org/
+Schwaber, K. y Sutherland, J. (2020). *The Scrum guide*. https://scrumguides.org/
 
 Sommerville, I. (2016). *Software engineering* (10.ª ed.). Pearson.
 
@@ -941,12 +972,12 @@ VMware. (s. f.). *Spring Boot documentation*. https://docs.spring.io/spring-boot
 
 ---
 
-## ANEXO A. ÍNDICE DE FIGURAS
+## Anexo A. Índice de figuras
 
 | Figura | Título | Archivo |
 | :---- | :---- | :---- |
-| 1 | Diagrama de casos de uso | `Docs/img/01-casos-de-uso.png` |
-| 2 | Arquitectura por capas | `Docs/img/02-arquitectura-capas.png` |
+| 1 | Permisos por rol | `Docs/img/10-permisos-roles.png` |
+| 2 | Diagrama de casos de uso | `Docs/img/01-casos-de-uso.png` |
 | 3 | Diagrama de clases del dominio | `Docs/img/03-clases-dominio.png` |
 | 4 | Diagrama de clases del motor de análisis | `Docs/img/04-clases-motor.png` |
 | 5 | Modelo entidad-relación | `Docs/img/05-entidad-relacion.png` |
@@ -954,9 +985,12 @@ VMware. (s. f.). *Spring Boot documentation*. https://docs.spring.io/spring-boot
 | 7 | Diagrama de actividades del análisis | `Docs/img/07-actividad-analisis.png` |
 | 8 | Diagrama de estados de la alerta | `Docs/img/08-estados-alerta.png` |
 | 9 | Diagrama de despliegue | `Docs/img/09-despliegue.png` |
-| 10 | Permisos por rol | `Docs/img/10-permisos-roles.png` |
+| 10 | Puntuación por regla y cortes de riesgo | `Docs/img/12-puntuacion-reglas.png` |
+| 11 | Arquitectura por capas | `Docs/img/02-arquitectura-capas.png` |
+| 12 | Líneas de código por componente | `Docs/img/13-lineas-codigo.png` |
+| 13 | Pruebas automáticas por clase | `Docs/img/11-pruebas-por-clase.png` |
 
-Las fuentes editables de cada diagrama están en `Docs/img/fuentes/` (formato Mermaid `.mmd`). Para regenerar una imagen:
+Las fuentes editables de los diagramas 1 a 9 y 11 están en `Docs/img/fuentes/` (formato Mermaid `.mmd`). Las gráficas 10, 12 y 13 se generaron con Python y Matplotlib a partir de los datos del repositorio. Para regenerar una imagen:
 
 ```bat
 npx -y @mermaid-js/mermaid-cli -i Docs\img\fuentes\01-casos-de-uso.mmd -o Docs\img\01-casos-de-uso.png -b white -s 2
