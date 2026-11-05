@@ -26,6 +26,7 @@ export default function Layout() {
           {puedeEscribir && <NavLink to="/reglas">Reglas</NavLink>}
           {puedeEscribir && <NavLink to="/reportes">Reportes</NavLink>}
           {esAdmin && <NavLink to="/usuarios">Usuarios</NavLink>}
+          <NavLink to="/info">Info</NavLink>
         </div>
         <div className="sesion">
           <span className="quien">{usuario.usuario}</span>

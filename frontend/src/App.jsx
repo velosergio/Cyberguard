@@ -7,6 +7,7 @@ import DispositivoForm from './pages/DispositivoForm.jsx';
 import Dispositivos from './pages/Dispositivos.jsx';
 import EventoForm from './pages/EventoForm.jsx';
 import Eventos from './pages/Eventos.jsx';
+import Info from './pages/Info.jsx';
 import Login from './pages/Login.jsx';
 import NoEncontrada from './pages/NoEncontrada.jsx';
 import Panel from './pages/Panel.jsx';
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="eventos" element={<Eventos />} />
           <Route path="alertas" element={<Alertas />} />
           <Route path="alertas/:id" element={<AlertaDetalle />} />
+          <Route path="info" element={<Info />} />
 
           <Route element={<RutaProtegida roles={ESCRITURA} />}>
             <Route path="dispositivos/nuevo" element={<DispositivoForm />} />

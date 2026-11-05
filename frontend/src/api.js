@@ -28,6 +28,7 @@ export class ApiError extends Error {
   constructor(status, mensaje, errores = {}) {
     super(mensaje);
     this.status = status;
+    this.mensaje = mensaje;
     this.errores = errores;
   }
 }

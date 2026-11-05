@@ -126,7 +126,7 @@ Desarrollar una plataforma de software denominada CyberGuard, basada principalme
 | :---- | :---- | :---- |
 | 1. Requerimientos, arquitectura y base de datos | Cumplido | Secciones 6, 9 y 11; paquetes `domain`, `repository`, `service`, `web`; `Docs/base-de-datos.md` |
 | 2. Reglas, clasificación de riesgo e interfaz de consulta | Cumplido | Paquete `analysis`, seis reglas en `analysis/reglas`, `ClasificadorRiesgo`, API REST en `web/` y cliente React con 14 páginas en `frontend/src/pages` |
-| 3. Metodología y pruebas | En curso | Scrum por sprints; 20 pruebas automáticas aprobadas; plan de pruebas ampliado para la tercera entrega (sección 17) |
+| 3. Metodología y pruebas | En curso | Scrum por sprints; 62 pruebas del backend y 24 del cliente aprobadas; cobertura con JaCoCo y más pantallas del cliente pendientes (sección 17) |
 
 ---
 
@@ -147,7 +147,7 @@ CyberGuard es una aplicación web académica para registrar, analizar y clasific
 - Reportes de eventos y alertas con descarga en CSV.
 - Base de datos MySQL/MariaDB creada y actualizada por Hibernate.
 - Datos de demostración que se cargan solos la primera vez.
-- Pruebas automáticas sobre una base H2 en memoria.
+- Pruebas automáticas del backend sobre una base H2 en memoria y del cliente con Vitest.
 
 ### 5.2 Limitaciones
 
@@ -491,13 +491,14 @@ backend/src/main/java/com/cun/cyberguard
 └── repository/                  5 repositorios Spring Data
 backend/src/main/resources
 └── application.properties       lee sus valores de backend/.env
-backend/src/test                 5 clases de prueba + application-test.properties
+backend/src/test                 13 clases de prueba + application-test.properties
 frontend/src
 ├── main.jsx, App.jsx            arranque y rutas
 ├── api.js, auth.jsx             cliente HTTP con token y contexto de sesión
 ├── catalogos.jsx, util.js       catálogos de la API y utilidades
 ├── components/                  Layout, RutaProtegida, controles y hook de formularios
-└── pages/                       14 páginas
+├── pages/                       14 páginas
+└── *.test.js(x), test/          suite Vitest (24 pruebas)
 ```
 
 En total hay 70 archivos Java en `backend/src/main` y unas 5 100 líneas de código entre el backend (Java, fuente y pruebas) y el cliente (JavaScript).
@@ -603,10 +604,10 @@ En total hay 70 archivos Java en `backend/src/main` y unas 5 100 líneas de cód
 | Reglas | Completo | Solo se editan parámetros, no se crean reglas nuevas desde la interfaz. |
 | Panel | Completo | Indicadores numéricos; sin gráficas. |
 | Reportes | Completo | Solo CSV. |
-| Cliente web (React) | Completo | 14 páginas; sin pruebas automáticas propias. |
-| Pruebas automáticas | Parcial | 20 pruebas del backend; faltan pruebas de servicios, de cada regla por separado y del cliente. |
+| Cliente web (React) | Completo | 14 páginas; 24 pruebas con Vitest (api, auth, rutas, login y UI). |
+| Pruebas automáticas | En curso | 62 del backend y 24 del cliente; falta medir cobertura con JaCoCo y ampliar pantallas de negocio del cliente. |
 
-Los 13 requerimientos funcionales y los 8 no funcionales tienen implementación en el código. El trabajo pendiente se concentra en ampliar las pruebas, mejorar la trazabilidad y agregar funciones complementarias (sección 17).
+Los 13 requerimientos funcionales y los 8 no funcionales tienen implementación en el código. El trabajo pendiente se concentra en cobertura, trazabilidad y funciones complementarias (sección 17).
 
 ### 13.3 Historial del repositorio
 
@@ -625,8 +626,6 @@ Los 13 requerimientos funcionales y los 8 no funcionales tienen implementación 
 ## 14. EVIDENCIAS DEL SISTEMA
 
 Las capturas se tomaron de la aplicación en ejecución con los datos de demostración. Están en la carpeta `screenshots/` del repositorio.
-
-> **Pendiente.** Estas capturas son del 28 de septiembre de 2026, anteriores a la separación en API y cliente React (5 de octubre). Hay que volver a tomarlas con el cliente actual antes de entregar. La Evidencia 4 pasa a ser el mensaje «Acceso denegado» del cliente y la Evidencia 21, la pantalla «Página no encontrada».
 
 ### 14.1 Acceso
 
@@ -726,53 +725,70 @@ Las capturas se tomaron de la aplicación en ejecución con los datos de demostr
 
 ### 14.9 Errores
 
-![Evidencia 21. Página de error](../screenshots/16-error.png)
+![Evidencia 21. Página no encontrada](../screenshots/16-error.png)
 
-*Evidencia 21. Página propia para direcciones inexistentes.*
+*Evidencia 21. Pantalla «Página no encontrada» para direcciones inexistentes.*
 
 ---
 
 ## 15. PRUEBAS REALIZADAS HASTA EL MOMENTO
 
-### 15.1 Pruebas automáticas
+### 15.1 Pruebas automáticas del backend
 
 Se ejecutan con `mvnw.cmd test` sobre una base H2 en memoria (perfil `test`), sin necesidad de MySQL. Usan JUnit 5, Mockito, Spring Data JPA Test y MockMvc con Spring Security Test.
 
-**Última ejecución: 5 de noviembre de 2026. Resultado: 20 pruebas, 0 fallos, 0 errores, 0 omitidas.**
+**Última ejecución: 5 de noviembre de 2026. Resultado: 62 pruebas, 0 fallos, 0 errores, 0 omitidas.**
 
-| Clase de prueba | Tipo | Prueba | Qué verifica | Resultado |
+| Clase de prueba | Tipo | Pruebas | Qué verifica | Resultado |
 | :---- | :---- | :---- | :---- | :---- |
-| `ClasificadorRiesgoTest` | Unitaria | `clasificaLosLimitesDelDocumento` | Los cortes 0, 20, 21, 50, 51, 80, 81 y 100 dan bajo, medio, alto y crítico según la tabla. | Aprobada |
-| `ClasificadorRiesgoTest` | Unitaria | `limitaLaPuntuacionEntreCeroYCien` | −5 queda en 0, 150 queda en 100 y se clasifica como crítico. | Aprobada |
-| `MotorAnalisisTest` | Unitaria con Mockito | `detectaDispositivoNoRegistrado` | Una IP fuera del inventario activa la regla: 10 puntos, nivel bajo. | Aprobada |
-| `MotorAnalisisTest` | Unitaria con Mockito | `detectaMultiplesIntentosDeConexion` | Ocho intentos de conexión con umbral 8 activan la regla: 20 puntos. | Aprobada |
-| `MotorAnalisisTest` | Unitaria con Mockito | `detectaEscaneoDePuertos` | Accesos a los puertos 22, 80, 443, 8080 y 3306 activan la regla: 25 puntos, nivel medio. | Aprobada |
-| `MotorAnalisisTest` | Unitaria con Mockito | `sumaVariasReglasYRecortaEnCien` | Dos reglas de 60 puntos se suman, se recortan a 100 y dan nivel crítico. | Aprobada |
-| `EventoRepositoryTest` | Integración (JPA + H2) | `historialDeUnEventoPasadoNoIncluyeEventosPosteriores` | Con cinco eventos recientes y uno registrado después con fecha de una hora antes, el historial de este último solo lo contiene a él. | Aprobada |
-| `EventoRepositoryTest` | Integración (JPA + H2) | `historialIncluyeLosLimitesDeLaVentanaYFiltraPorIp` | Los eventos en los dos extremos de la ventana cuentan; los anteriores y los de otra IP no. | Aprobada |
-| `EventoFormTest` | Unitaria (Bean Validation) | `rechazaFechaFutura` | Una fecha de mañana produce un error en `fechaHora`. | Aprobada |
-| `EventoFormTest` | Unitaria (Bean Validation) | `aceptaFechaPasada` | Una fecha de hace una hora no produce errores. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `anonimoRecibe401` | Sin token, `GET /api/panel` responde 401. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `loginDevuelveTokenQueDaAccesoAlPanel` | `admin` inicia sesión, recibe un token Bearer con rol administrador y con él abre `/api/panel` y `/api/usuarios`. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `loginConClaveIncorrectaRecibe401` | Una contraseña errada responde 401. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `tokenManipuladoRecibe401` | Un token con firma inválida responde 401. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `consultaNoPuedeCrearUsuarios` | El rol consulta recibe 403 al enviar `POST /api/usuarios`. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `consultaNoPuedeVerReglasNiReportes` | El rol consulta recibe 403 en `/api/reglas` y `/api/reportes`. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `analistaNoPuedeEditarReglas` | El analista recibe 403 al enviar `PUT /api/reglas/1`. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `validacionDevuelve400ConErroresPorCampo` | Un dispositivo con datos inválidos responde 400 con el error de cada campo. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `analistaRegistraEventoYLasConsultasSerializanSinErrores` | El analista registra un evento (201) que genera una alerta; luego consulta la alerta, cambia su estado y abre panel, reportes, CSV y catálogos sin errores. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `recursoInexistenteDevuelve404` | Una alerta que no existe responde 404. | Aprobada |
+| `ClasificadorRiesgoTest` | Unitaria | 2 | Cortes de puntuación (bajo, medio, alto, crítico) y tope 0–100. | Aprobadas |
+| `MotorAnalisisTest` | Unitaria con Mockito | 4 | Detecciones de ejemplo, suma de reglas y recorte en 100. | Aprobadas |
+| `ReglasDeteccionTest` | Unitaria | 13 | Las seis reglas: caso que cumple, caso que no, y códigos no vacíos. | Aprobadas |
+| `DispositivoTest` | Unitaria | 2 | `ultima_actividad` solo avanza; estado desconocido no registra. | Aprobadas |
+| `EventoRepositoryTest` | Integración (JPA + H2) | 2 | Historial por IP, límites de ventana y exclusión de eventos posteriores. | Aprobadas |
+| `EventoServiceTest` | Unitaria con Mockito | 7 | Última actividad, puerto obligatorio en acceso a puerto y creación de alerta. | Aprobadas |
+| `UsuarioServiceTest` | Unitaria con Mockito | 7 | Alta con hash, edición sin pisar clave, unicidad y último administrador. | Aprobadas |
+| `AlertaServiceTest` | Unitaria con Mockito | 3 | Crear con reglas, actualizar estado/nota y 404. | Aprobadas |
+| `FechasTest` | Unitaria | 3 | Inicio del día y fin exclusivo de filtros. | Aprobadas |
+| `EventoFormTest` | Bean Validation | 2 | Rechaza fecha futura; acepta pasada. | Aprobadas |
+| `DispositivoFormTest` | Bean Validation | 4 | IP y MAC válidas o vacías. | Aprobadas |
+| `UsuarioFormTest` | Bean Validation | 3 | Usuario y correo con formato correcto. | Aprobadas |
+| `SeguridadAccesoTest` | Integración (MockMvc) | 10 | Login/token, 401/403/400/404 y recorrido de evento, alertas, panel y reportes. | Aprobadas |
 
 Salida resumida de Maven Surefire:
 
 ```text
 Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in ClasificadorRiesgoTest
 Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 -- in MotorAnalisisTest
+Tests run: 13, Failures: 0, Errors: 0, Skipped: 0 -- in ReglasDeteccionTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in DispositivoTest
 Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in EventoRepositoryTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0 -- in AlertaServiceTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0 -- in EventoServiceTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0 -- in FechasTest
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0 -- in UsuarioServiceTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 -- in DispositivoFormTest
 Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in EventoFormTest
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0 -- in UsuarioFormTest
 Tests run: 10, Failures: 0, Errors: 0, Skipped: 0 -- in SeguridadAccesoTest
-Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 62, Failures: 0, Errors: 0, Skipped: 0
 ```
+
+### 15.1.1 Pruebas automáticas del cliente
+
+Se ejecutan con `npm test` en `frontend/` (Vitest + Testing Library + jsdom).
+
+**Última ejecución: 5 de noviembre de 2026. Resultado: 24 pruebas, 0 fallos.**
+
+| Archivo | Pruebas | Qué verifica | Resultado |
+| :---- | :---- | :---- | :---- |
+| `api.test.js` | 6 | Sesión, query params, Bearer, 401/403 y fallo de red. | Aprobadas |
+| `auth.test.jsx` | 3 | Permisos por rol, salir y entrar. | Aprobadas |
+| `util.test.js` | 3 | `formatFecha` y `ahoraLocal`. | Aprobadas |
+| `RutaProtegida.test.jsx` | 4 | Redirección al login, acceso denegado y acceso por rol. | Aprobadas |
+| `Login.test.jsx` | 3 | Sesión vigente, error de credenciales e ingreso correcto. | Aprobadas |
+| `NoEncontrada.test.jsx` | 1 | Mensaje de página inexistente. | Aprobada |
+| `ui.test.jsx` | 4 | `MensajeError`, `Estado` y `Campo`. | Aprobadas |
 
 ### 15.2 Pruebas funcionales manuales
 
@@ -825,6 +841,7 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 | 15 | Ante un 401 o 403 el cliente no tenía qué mensaje mostrar. | Spring Security responde esos códigos con el cuerpo vacío. | `api.js` usa un mensaje por código de estado cuando no llega cuerpo y, ante un 401, cierra la sesión. |
 | 16 | Un evento registrado con fecha pasada podía disparar reglas de más. | La consulta del historial solo tenía límite inferior (`fechaHora >= desde`) y contaba también los eventos posteriores de la misma IP. | La ventana termina en la fecha del evento (`fechaHora <= hasta`) y las fechas futuras se rechazan en la API y en el cliente. Lo cubren `EventoRepositoryTest` y `EventoFormTest`. |
 | 17 | Credenciales y clave JWT escritas en `application.properties`. | Cada equipo tiene su propia contraseña de MySQL y la clave no debe ir al repositorio. | Los valores salen de `backend/.env` (ignorado por Git) con spring-dotenv; `backend/.env.example` sirve de plantilla. |
+| 18 | Un evento con fecha pasada hacía retroceder la última actividad del dispositivo. | `ultima_actividad` se reescribía con cualquier fecha del evento ligado. | `Dispositivo.registrarActividad` solo avanza la fecha; lo cubre `EventoServiceTest` y `DispositivoTest` (ver D5 en `NORMALIZACION.md`). |
 
 **Observación del análisis con los datos de demostración.** Con los valores iniciales, una sola regla nunca supera 30 puntos, así que el panel muestra 0 alertas altas y 0 críticas (Evidencia 5). Para llegar a alto o crítico deben cumplirse varias reglas en el mismo evento. Es coherente con el diseño (el riesgo alto nace de la combinación de señales), pero se revisará la calibración de puntos en la tercera entrega.
 
@@ -834,7 +851,7 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 
 | Prioridad | Funcionalidad | Descripción |
 | :---- | :---- | :---- |
-| Alta | Ampliar las pruebas automáticas | Pruebas unitarias para cada una de las seis reglas por separado (casos que cumplen y que no), pruebas de `EventoService`, `UsuarioService` y `AlertaService`, y pruebas de acceso para todas las rutas y los tres roles. Medir la cobertura con JaCoCo. |
+| Alta | Cobertura y ampliación de pruebas | Ya hay 62 pruebas del backend (reglas, servicios, formularios, dominio y `SeguridadAccesoTest`) y 24 del cliente. Falta medir cobertura con JaCoCo y ampliar pantallas de negocio del cliente (dispositivos, eventos, alertas, reportes). |
 | Alta | Auditoría de acciones | Registrar qué usuario registró cada evento y quién cambió el estado de cada alerta, con fecha (relación entre `usuarios`, `eventos` y `alertas`). |
 | Alta | Transiciones de estado controladas | Aplicar en `AlertaService` el flujo de la Figura 8 en lugar de permitir cualquier cambio. |
 | Media | Carga masiva de eventos | Importar eventos desde un archivo CSV generado en el laboratorio (por ejemplo, exportaciones de Wireshark o de registros de un equipo autorizado) y analizarlos uno por uno. |
@@ -843,7 +860,7 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 | Media | Paginación e índices | Paginar las listas de eventos y alertas y crear un índice sobre `eventos(direccion_ip, fecha_hora)`, que es la consulta del historial que usa el motor. |
 | Baja | Reportes en PDF | Además del CSV, un reporte imprimible. |
 | Baja | Política de contraseñas y bloqueo por intentos | Exigir complejidad mínima y bloquear temporalmente tras varios intentos fallidos. |
-| Media | Pruebas del cliente web | Pruebas de componentes y rutas del cliente React (por ejemplo, con Vitest y Testing Library). |
+| Media | Ampliar pruebas del cliente web | Base con Vitest y Testing Library ya creada (`npm test`). Falta cubrir formularios y listados de dispositivos, eventos, alertas y reportes. |
 | Baja | Revocación de sesiones | Comprobar en cada petición que la cuenta siga activa y con el mismo rol, o acortar la vida del token, para que desactivar una cuenta tenga efecto inmediato. |
 | Baja | Despliegue de demostración | Empaquetar el `.jar` y `frontend/dist`, y documentar su ejecución en un equipo del laboratorio para la sustentación. |
 | — | Documento final | Resultados de las pruebas ampliadas, manual de usuario y conclusiones finales. |
@@ -862,7 +879,7 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 
 5. Varios problemas técnicos (MariaDB con Hibernate 6, carga perezosa sin `open-in-view`, CORS entre cliente y API, descarga de archivos con token, formato CSV para Excel, la ventana del historial) se resolvieron y quedaron documentados, lo que reduce el tiempo de instalación en otros equipos.
 
-6. Las 20 pruebas automáticas aprobadas cubren la clasificación de riesgo, cuatro escenarios del motor, la ventana del historial, la validación de fechas y diez casos de autenticación, permisos y respuestas de la API. Son una base, pero no alcanzan todavía para validar todo el sistema: faltan pruebas por regla, de los servicios y del cliente; ampliarlas es la prioridad de la tercera entrega, junto con la auditoría de acciones y la calibración de las reglas.
+6. Las 62 pruebas del backend y las 24 del cliente cubren clasificación de riesgo, el motor y cada regla, servicios de evento/usuario/alerta, validaciones de formularios, autenticación y permisos de la API, más api/auth/rutas del cliente. Sigue pendiente medir cobertura con JaCoCo y ampliar pantallas de negocio; junto con la auditoría de acciones y la calibración de las reglas, eso prioriza la tercera entrega.
 
 7. El proyecto se mantiene dentro de su alcance académico: registra y analiza eventos de una red autorizada, no escanea ni bloquea, y presenta sus alertas como señales para revisión humana y no como dictámenes de ataque.
 
@@ -917,6 +934,8 @@ Spring. (s. f.-a). *Spring Security reference*. https://docs.spring.io/spring-se
 Spring. (s. f.-b). *Spring Data JPA reference documentation*. https://docs.spring.io/spring-data/jpa/reference/
 
 Vite. (s. f.). *Vite guide*. https://vite.dev/guide/
+
+Vitest. (s. f.). *Vitest documentation*. https://vitest.dev/
 
 VMware. (s. f.). *Spring Boot documentation*. https://docs.spring.io/spring-boot/index.html
 

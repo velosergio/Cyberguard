@@ -42,6 +42,7 @@ Son rutas del frontend (React). Cada una consulta la API REST del backend, descr
 | `/reglas` | Condiciones del análisis. Solo el administrador edita puntuación, umbral, ventana y si está activa. |
 | `/usuarios` | Altas y cambios de usuarios. Solo el administrador. |
 | `/reportes` | Consulta y descarga en CSV de eventos y alertas. Administrador y analista. |
+| `/info` | Explicación del sistema para cualquier rol: flujo, arquitectura, base de datos, cardinalidad, normalización, motor de reglas, seguridad, gobernanza y skills. Contenido estático (no consulta la API); si cambian estos documentos, revisa `frontend/src/components/info/contenido.js`. |
 
 ## API REST
 
@@ -238,16 +239,17 @@ La zona horaria de la aplicación y de JDBC es `America/Bogota`.
 
 ## Pruebas
 
-`mvnw.cmd test`, dentro de `backend/`, ejecuta seis grupos (25 pruebas), todos contra H2:
+`mvnw.cmd test`, dentro de `backend/`, ejecuta la suite contra H2 (**62** pruebas):
 
-- `ClasificadorRiesgoTest`: los cortes de puntuación (bajo, medio, alto, crítico) y el tope 0–100.
-- `MotorAnalisisTest`: que las reglas de ejemplo disparan la detección esperada y que la ventana termina en la fecha del evento.
-- `EventoRepositoryTest`: que la consulta del historial filtra por IP, incluye sus límites y excluye los eventos posteriores.
-- `EventoFormTest`: que el formulario de eventos rechaza fechas futuras y acepta pasadas.
-- `EventoServiceTest`: que registrar un evento solo hace avanzar la última actividad del dispositivo (no la retrocede con un evento de fecha pasada ni la toca si el equipo es desconocido).
-- `SeguridadAccesoTest`: login y token, 401 sin credenciales o con token falso, 403 según el rol, errores de validación (400) y recurso inexistente (404), y que registrar un evento, listar y actualizar alertas, el panel y los reportes responden JSON sin errores de carga.
+- `ClasificadorRiesgoTest`: cortes de puntuación y tope 0–100.
+- `MotorAnalisisTest` y `ReglasDeteccionTest`: motor y cada regla (caso que cumple y que no).
+- `EventoRepositoryTest`: historial por IP, límites de ventana y exclusión de eventos posteriores.
+- `EventoFormTest`, `DispositivoFormTest`, `UsuarioFormTest`: validaciones de Jakarta.
+- `EventoServiceTest`, `UsuarioServiceTest`, `AlertaServiceTest`, `FechasTest`: reglas de negocio.
+- `DispositivoTest`: última actividad que solo avanza.
+- `SeguridadAccesoTest`: login y token, 401/403/400/404 y recorrido de registro de evento con serialización JSON.
 
-El frontend no tiene pruebas automáticas; `npm run build` comprueba que compila.
+En el frontend, `npm test` ejecuta Vitest + Testing Library (api, auth, rutas protegidas, login, utilidades y piezas de UI). `npm run build` comprueba que compila.
 
 ## Cómo arrancarla
 

@@ -24,6 +24,7 @@ class ClasificadorRiesgoTest {
     @Test
     void limitaLaPuntuacionEntreCeroYCien() {
         assertEquals(0, clasificador.limitar(-5));
+        assertEquals(NivelRiesgo.BAJO, clasificador.clasificar(-5));
         assertEquals(100, clasificador.limitar(150));
         assertEquals(NivelRiesgo.CRITICO, clasificador.clasificar(150));
     }

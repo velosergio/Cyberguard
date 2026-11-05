@@ -37,7 +37,8 @@ Frontend (desde `frontend/`):
 ```bat
 npm install
 npm run dev      :: servidor de desarrollo
-npm run build    :: genera dist/; es la única verificación del frontend (no hay tests ni linter)
+npm test         :: Vitest + Testing Library
+npm run build    :: genera dist/
 ```
 
 Usuarios de demostración: `admin`/`Admin123*`, `analista`/`Analista123*`, `consulta`/`Consulta123*`.
@@ -104,4 +105,4 @@ Antes de escribir un helper, busca si ya existe uno equivalente. Pero no abstrai
 - Si cambias la API (rutas, campos de DTO/form, roles), actualiza el frontend que la consume y la tabla de API en `Docs/GUIA.md`; si cambias el esquema, `Docs/base-de-datos.md`.
 - Los cambios de permisos o de contrato HTTP deben reflejarse en `SeguridadAccesoTest`; los de reglas o clasificación, en `MotorAnalisisTest` / `ClasificadorRiesgoTest`; los de consultas del historial, en `EventoRepositoryTest`; los del registro de eventos, en `EventoServiceTest`; los de validaciones de formulario, en `web/form/*Test` (como `EventoFormTest`).
 - Si cambias la configuración (`application.properties`, `.env.example`), actualiza `Docs/conexion.md` y la tabla de configuración del `README.md`.
-- Verifica con `.\mvnw.cmd test` (backend) y `npm run build` (frontend).
+- Verifica con `.\mvnw.cmd test` (backend), `npm test` y `npm run build` (frontend).

@@ -22,8 +22,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.cun.cyberguard.analysis.ResultadoDeteccion;
+import com.cun.cyberguard.domain.Regla;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -105,6 +109,32 @@ class EventoServiceTest {
 
         assertNull(dispositivo.getUltimaActividad());
         verify(dispositivoRepository, never()).save(any());
+    }
+
+    @Test
+    void accesoAPuertoSinNumeroFalla() {
+        EventoForm form = form(ULTIMA);
+        form.setTipo(TipoEvento.ACCESO_PUERTO);
+        form.setPuerto(null);
+
+        assertThrows(IllegalArgumentException.class, () -> servicio.registrar(form));
+        verify(eventoRepository, never()).save(any());
+    }
+
+    @Test
+    void conDeteccionesCreaAlerta() {
+        Dispositivo dispositivo = dispositivo(EstadoDispositivo.ACTIVO, ULTIMA);
+        when(dispositivoRepository.findByDireccionIp(IP)).thenReturn(Optional.of(dispositivo));
+        when(eventoRepository.save(any(Evento.class))).thenAnswer(invocacion -> invocacion.getArgument(0));
+        when(motorAnalisis.analizar(any(Evento.class)))
+                .thenReturn(new ResultadoAnalisis(
+                        List.of(new ResultadoDeteccion(new Regla(), "detectado")),
+                        10,
+                        NivelRiesgo.BAJO));
+
+        servicio.registrar(form(ULTIMA.plusMinutes(5)));
+
+        verify(alertaService).crear(any(Evento.class), any(ResultadoAnalisis.class));
     }
 
     private void prepararRegistro(Dispositivo dispositivo) {

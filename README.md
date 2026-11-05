@@ -82,12 +82,19 @@ Si el repositorio local quedó desactualizado, fuerza otra consulta a Maven Cent
 
 ## Pruebas
 
+**Backend** (H2 en memoria; no necesita MySQL):
+
 ```bat
 cd backend
 .\mvnw.cmd test
 ```
 
-Las pruebas usan H2 en memoria y no necesitan MySQL.
+**Frontend** (Vitest + Testing Library):
+
+```bat
+cd frontend
+npm test
+```
 
 ## Documentación
 
