@@ -52,22 +52,32 @@ export default function DispositivoForm() {
         <form className="datos" onSubmit={guardar}>
           <MensajeError mensaje={global} />
           <Campo etiqueta="Nombre" error={errores.nombre}>
-            <input name="nombre" value={valores.nombre} onChange={cambiar} />
+            {(atributos) => (
+              <input {...atributos} name="nombre" value={valores.nombre} onChange={cambiar} />
+            )}
           </Campo>
           <div className="dos">
             <Campo etiqueta="Dirección IP" error={errores.direccionIp}>
-              <input className="mono" name="direccionIp" value={valores.direccionIp} onChange={cambiar} placeholder="192.168.1.10" />
+              {(atributos) => (
+                <input {...atributos} className="mono" name="direccionIp" value={valores.direccionIp} onChange={cambiar} placeholder="192.168.1.10" />
+              )}
             </Campo>
             <Campo etiqueta="Dirección MAC" error={errores.direccionMac}>
-              <input className="mono" name="direccionMac" value={valores.direccionMac} onChange={cambiar} placeholder="AA:BB:CC:DD:EE:FF" />
+              {(atributos) => (
+                <input {...atributos} className="mono" name="direccionMac" value={valores.direccionMac} onChange={cambiar} placeholder="AA:BB:CC:DD:EE:FF" />
+              )}
             </Campo>
           </div>
           <div className="dos">
             <Campo etiqueta="Tipo" error={errores.tipo}>
-              <Selector name="tipo" value={valores.tipo} onChange={cambiar} opciones={catalogos.tiposDispositivo} />
+              {(atributos) => (
+                <Selector {...atributos} name="tipo" value={valores.tipo} onChange={cambiar} opciones={catalogos.tiposDispositivo} />
+              )}
             </Campo>
             <Campo etiqueta="Estado" error={errores.estado}>
-              <Selector name="estado" value={valores.estado} onChange={cambiar} opciones={catalogos.estadosDispositivo} />
+              {(atributos) => (
+                <Selector {...atributos} name="estado" value={valores.estado} onChange={cambiar} opciones={catalogos.estadosDispositivo} />
+              )}
             </Campo>
           </div>
           <div className="acciones">

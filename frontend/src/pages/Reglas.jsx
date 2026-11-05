@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
-import { AvisoNavegacion, Encabezado, Estado } from '../components/ui.jsx';
+import { AvisoNavegacion, CabeceraTabla, Encabezado, Estado } from '../components/ui.jsx';
 import { useConsulta } from '../util.js';
 
 export default function Reglas() {
@@ -19,9 +19,7 @@ export default function Reglas() {
       {reglas && (
         <section className="panel">
           <table>
-            <thead>
-              <tr><th>Regla</th><th>Puntos</th><th>Umbral</th><th>Ventana</th><th>Estado</th><th></th></tr>
-            </thead>
+            <CabeceraTabla columnas={['Regla', 'Puntos', 'Umbral', 'Ventana', 'Estado', '']} />
             <tbody>
               {reglas.map((r) => (
                 <tr key={r.idReglas}>

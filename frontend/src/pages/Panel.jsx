@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useCatalogos } from '../catalogos.jsx';
-import { Encabezado, Estado, Nivel } from '../components/ui.jsx';
+import { CabeceraTabla, Encabezado, Estado, Nivel } from '../components/ui.jsx';
 import { formatFecha, useConsulta } from '../util.js';
 
 export default function Panel() {
@@ -28,9 +28,7 @@ export default function Panel() {
                 <p className="vacio">Aún no hay eventos registrados.</p>
               ) : (
                 <table>
-                  <thead>
-                    <tr><th>Fecha</th><th>IP</th><th>Tipo</th><th>Importancia</th></tr>
-                  </thead>
+                  <CabeceraTabla columnas={['Fecha', 'IP', 'Tipo', 'Importancia']} />
                   <tbody>
                     {resumen.eventosRecientes.map((evento) => (
                       <tr key={evento.idEventos}>
@@ -50,9 +48,7 @@ export default function Panel() {
                 <p className="vacio">No hay alertas.</p>
               ) : (
                 <table>
-                  <thead>
-                    <tr><th>Nivel</th><th>IP</th><th></th></tr>
-                  </thead>
+                  <CabeceraTabla columnas={['Nivel', 'IP', '']} />
                   <tbody>
                     {resumen.alertasRecientes.map((alerta) => (
                       <tr key={alerta.idAlertas}>

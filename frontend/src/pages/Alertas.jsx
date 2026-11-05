@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useCatalogos } from '../catalogos.jsx';
-import { AvisoNavegacion, Encabezado, Estado, Nivel, Selector } from '../components/ui.jsx';
+import { AvisoNavegacion, CabeceraTabla, Encabezado, Estado, Nivel, Selector } from '../components/ui.jsx';
 import { formatFecha, useConsulta } from '../util.js';
 
 const SIN_FILTROS = { nivel: '', estado: '', desde: '', hasta: '' };
@@ -40,9 +40,7 @@ export default function Alertas() {
             <p className="vacio">No hay alertas con esos filtros.</p>
           ) : (
             <table>
-              <thead>
-                <tr><th>Fecha</th><th>IP</th><th>Nivel</th><th>Puntos</th><th>Estado</th><th>Reglas</th><th></th></tr>
-              </thead>
+              <CabeceraTabla columnas={['Fecha', 'IP', 'Nivel', 'Puntos', 'Estado', 'Reglas', '']} />
               <tbody>
                 {alertas.map((a) => (
                   <tr key={a.idAlertas}>

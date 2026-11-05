@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api, descargar } from '../api.js';
 import { useCatalogos } from '../catalogos.jsx';
-import { Encabezado, MensajeError, Estado, Selector } from '../components/ui.jsx';
+import { CabeceraTabla, Encabezado, Estado, MensajeError, Selector } from '../components/ui.jsx';
 import { formatFecha, useConsulta } from '../util.js';
 
 const SIN_FILTROS = { ip: '', tipo: '', nivel: '', desde: '', hasta: '' };
@@ -72,9 +72,7 @@ export default function Reportes() {
               <p className="vacio">Sin eventos para el filtro.</p>
             ) : (
               <table>
-                <thead>
-                  <tr><th>Fecha</th><th>IP</th><th>Tipo</th><th>Importancia</th><th>Detalle</th></tr>
-                </thead>
+                <CabeceraTabla columnas={['Fecha', 'IP', 'Tipo', 'Importancia', 'Detalle']} />
                 <tbody>
                   {datos.eventos.map((e) => (
                     <tr key={e.idEventos}>
@@ -95,9 +93,7 @@ export default function Reportes() {
               <p className="vacio">Sin alertas para el filtro.</p>
             ) : (
               <table>
-                <thead>
-                  <tr><th>Fecha</th><th>IP</th><th>Nivel</th><th>Puntos</th><th>Estado</th></tr>
-                </thead>
+                <CabeceraTabla columnas={['Fecha', 'IP', 'Nivel', 'Puntos', 'Estado']} />
                 <tbody>
                   {datos.alertas.map((a) => (
                     <tr key={a.idAlertas}>

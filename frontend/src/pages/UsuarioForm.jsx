@@ -54,22 +54,32 @@ export default function UsuarioForm() {
         <form className="datos" onSubmit={guardar}>
           <MensajeError mensaje={global} />
           <Campo etiqueta="Nombre" error={errores.nombre}>
-            <input name="nombre" value={valores.nombre} onChange={cambiar} />
+            {(atributos) => (
+              <input {...atributos} name="nombre" value={valores.nombre} onChange={cambiar} />
+            )}
           </Campo>
           <div className="dos">
             <Campo etiqueta="Usuario" error={errores.usuario}>
-              <input name="usuario" value={valores.usuario} onChange={cambiar} autoComplete="off" />
+              {(atributos) => (
+                <input {...atributos} name="usuario" value={valores.usuario} onChange={cambiar} autoComplete="off" />
+              )}
             </Campo>
             <Campo etiqueta="Correo" error={errores.correo}>
-              <input type="email" name="correo" value={valores.correo} onChange={cambiar} />
+              {(atributos) => (
+                <input {...atributos} type="email" name="correo" value={valores.correo} onChange={cambiar} />
+              )}
             </Campo>
           </div>
           <div className="dos">
             <Campo etiqueta="Contraseña" error={errores.contrasena}>
-              <input type="password" name="contrasena" value={valores.contrasena} onChange={cambiar} autoComplete="new-password" />
+              {(atributos) => (
+                <input {...atributos} type="password" name="contrasena" value={valores.contrasena} onChange={cambiar} autoComplete="new-password" />
+              )}
             </Campo>
             <Campo etiqueta="Rol" error={errores.rol}>
-              <Selector name="rol" value={valores.rol} onChange={cambiar} opciones={catalogos.roles} />
+              {(atributos) => (
+                <Selector {...atributos} name="rol" value={valores.rol} onChange={cambiar} opciones={catalogos.roles} />
+              )}
             </Campo>
           </div>
           <label className="casilla">

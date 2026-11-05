@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCatalogos } from '../catalogos.jsx';
 
@@ -35,14 +36,39 @@ export function Nivel({ nivel }) {
   return <span className={`nivel nivel-${nivel}`}>{etiqueta('nivelesRiesgo', nivel)}</span>;
 }
 
-/** Campo de formulario con su mensaje de validación del servidor. */
+/**
+ * Campo de formulario con su mensaje de validación del servidor.
+ * `children` es una función que recibe los atributos de accesibilidad (`id`,
+ * `aria-invalid`, `aria-describedby`) para esparcirlos en el control: así la
+ * etiqueta queda asociada por `htmlFor` y el error se anuncia como descripción,
+ * no como parte del nombre del campo.
+ */
 export function Campo({ etiqueta, error, children }) {
+  const id = useId();
+  const idError = `${id}-error`;
   return (
-    <label>
-      {etiqueta}
-      {children}
-      {error && <span className="error">{error}</span>}
-    </label>
+    <div className="campo">
+      <label htmlFor={id}>{etiqueta}</label>
+      {children({
+        id,
+        'aria-invalid': error ? true : undefined,
+        'aria-describedby': error ? idError : undefined,
+      })}
+      {error && <span className="error" id={idError}>{error}</span>}
+    </div>
+  );
+}
+
+/** Fila de encabezados de una tabla de datos; '' deja la columna de acciones sin título. */
+export function CabeceraTabla({ columnas }) {
+  return (
+    <thead>
+      <tr>
+        {columnas.map((columna) => (
+          <th key={columna}>{columna}</th>
+        ))}
+      </tr>
+    </thead>
   );
 }
 

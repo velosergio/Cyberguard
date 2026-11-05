@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useCatalogos } from '../catalogos.jsx';
-import { AvisoNavegacion, Encabezado, EnlaceBoton, Estado } from '../components/ui.jsx';
+import { AvisoNavegacion, CabeceraTabla, Encabezado, EnlaceBoton, Estado } from '../components/ui.jsx';
 import { formatFecha, useConsulta } from '../util.js';
 
 export default function Dispositivos() {
@@ -23,11 +23,7 @@ export default function Dispositivos() {
             <p className="vacio">No hay dispositivos registrados.</p>
           ) : (
             <table>
-              <thead>
-                <tr>
-                  <th>Nombre</th><th>IP</th><th>MAC</th><th>Tipo</th><th>Estado</th><th>Última actividad</th><th></th>
-                </tr>
-              </thead>
+              <CabeceraTabla columnas={['Nombre', 'IP', 'MAC', 'Tipo', 'Estado', 'Última actividad', '']} />
               <tbody>
                 {dispositivos.map((d) => (
                   <tr key={d.idDispositivos}>

@@ -54,14 +54,20 @@ export default function ReglaForm() {
           <MensajeError mensaje={global} />
           <div className="dos">
             <Campo etiqueta="Puntuación" error={errores.puntuacion}>
-              <input type="number" min="1" max="100" name="puntuacion" value={valores.puntuacion} onChange={cambiar} />
+              {(atributos) => (
+                <input {...atributos} type="number" min="1" max="100" name="puntuacion" value={valores.puntuacion} onChange={cambiar} />
+              )}
             </Campo>
             <Campo etiqueta="Umbral" error={errores.umbral}>
-              <input type="number" min="1" name="umbral" value={valores.umbral} onChange={cambiar} />
+              {(atributos) => (
+                <input {...atributos} type="number" min="1" name="umbral" value={valores.umbral} onChange={cambiar} />
+              )}
             </Campo>
           </div>
           <Campo etiqueta="Ventana en minutos" error={errores.ventanaMinutos}>
-            <input type="number" min="0" max="1440" name="ventanaMinutos" value={valores.ventanaMinutos} onChange={cambiar} />
+            {(atributos) => (
+              <input {...atributos} type="number" min="0" max="1440" name="ventanaMinutos" value={valores.ventanaMinutos} onChange={cambiar} />
+            )}
           </Campo>
           <label className="casilla">
             <input type="checkbox" name="activa" checked={valores.activa} onChange={cambiar} /> Regla activa

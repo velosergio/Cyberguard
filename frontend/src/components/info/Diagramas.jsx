@@ -174,7 +174,8 @@ export function DiagramaER() {
 
   return (
     <div className="er">
-      <svg viewBox="0 0 1040 565" className="er-svg" role="img" aria-label="Diagrama entidad-relación de la base cyberguard">
+      {/* group y no img: img vuelve "una sola imagen" todo su contenido y escondería las tablas enfocables. */}
+      <svg viewBox="0 0 1040 565" className="er-svg" role="group" aria-label="Diagrama entidad-relación de la base cyberguard">
         <g className="er-leyenda" transform="translate(300 40)">
           <text x="0" y="0" className="er-leyenda-titulo">Cómo leer las líneas</text>
           {[

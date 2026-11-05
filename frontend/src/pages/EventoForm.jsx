@@ -57,35 +57,49 @@ export default function EventoForm() {
           <form className="datos" onSubmit={guardar}>
             <MensajeError mensaje={global} />
             <Campo etiqueta="Dispositivo" error={errores.dispositivoId}>
-              <select name="dispositivoId" value={valores.dispositivoId} onChange={elegirDispositivo}>
-                <option value="">Sin dispositivo registrado</option>
-                {dispositivos.map((d) => (
-                  <option key={d.idDispositivos} value={d.idDispositivos}>{`${d.nombre} · ${d.direccionIp}`}</option>
-                ))}
-              </select>
+              {(atributos) => (
+                <select {...atributos} name="dispositivoId" value={valores.dispositivoId} onChange={elegirDispositivo}>
+                  <option value="">Sin dispositivo registrado</option>
+                  {dispositivos.map((d) => (
+                    <option key={d.idDispositivos} value={d.idDispositivos}>{`${d.nombre} · ${d.direccionIp}`}</option>
+                  ))}
+                </select>
+              )}
             </Campo>
             <div className="dos">
               <Campo etiqueta="Dirección IP" error={errores.direccionIp}>
-                <input className="mono" name="direccionIp" value={valores.direccionIp} onChange={cambiar} placeholder="192.168.10.11" />
+                {(atributos) => (
+                  <input {...atributos} className="mono" name="direccionIp" value={valores.direccionIp} onChange={cambiar} placeholder="192.168.10.11" />
+                )}
               </Campo>
               <Campo etiqueta="Fecha y hora" error={errores.fechaHora}>
                 {/* El backend rechaza fechas futuras (@PastOrPresent); el navegador avisa antes de enviar. */}
-                <input type="datetime-local" name="fechaHora" value={valores.fechaHora} onChange={cambiar} max={ahoraLocal()} />
+                {(atributos) => (
+                  <input {...atributos} type="datetime-local" name="fechaHora" value={valores.fechaHora} onChange={cambiar} max={ahoraLocal()} />
+                )}
               </Campo>
             </div>
             <div className="dos">
               <Campo etiqueta="Tipo" error={errores.tipo}>
-                <Selector name="tipo" value={valores.tipo} onChange={cambiar} vacio="Selecciona" opciones={catalogos.tiposEvento} />
+                {(atributos) => (
+                  <Selector {...atributos} name="tipo" value={valores.tipo} onChange={cambiar} vacio="Selecciona" opciones={catalogos.tiposEvento} />
+                )}
               </Campo>
               <Campo etiqueta="Puerto" error={errores.puerto}>
-                <input type="number" min="1" max="65535" name="puerto" value={valores.puerto} onChange={cambiar} />
+                {(atributos) => (
+                  <input {...atributos} type="number" min="1" max="65535" name="puerto" value={valores.puerto} onChange={cambiar} />
+                )}
               </Campo>
             </div>
             <Campo etiqueta="Importancia" error={errores.importancia}>
-              <Selector name="importancia" value={valores.importancia} onChange={cambiar} opciones={catalogos.importancias} />
+              {(atributos) => (
+                <Selector {...atributos} name="importancia" value={valores.importancia} onChange={cambiar} opciones={catalogos.importancias} />
+              )}
             </Campo>
             <Campo etiqueta="Detalle" error={errores.detalle}>
-              <textarea name="detalle" value={valores.detalle} onChange={cambiar} maxLength={500} />
+              {(atributos) => (
+                <textarea {...atributos} name="detalle" value={valores.detalle} onChange={cambiar} maxLength={500} />
+              )}
             </Campo>
             <div className="acciones">
               <button className="boton" type="submit" disabled={enviando}>Analizar y guardar</button>

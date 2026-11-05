@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Encabezado } from '../components/ui.jsx';
+import { CabeceraTabla, Encabezado } from '../components/ui.jsx';
 import {
   AnillosRoles, CapasArquitectura, DiagramaER, FlujoEvento, GlifoRelacion, GraficoReglas,
   MatrizNormalizacion, MedidorRiesgo, RamasGit, RedPortada,
@@ -231,7 +231,7 @@ export default function Info() {
               <div className="panel centrado"><AnillosRoles /></div>
               <div className="panel">
                 <table className="permisos">
-                  <thead><tr><th>Acción</th><th>Admin</th><th>Analista</th><th>Consulta</th></tr></thead>
+                  <CabeceraTabla columnas={['Acción', 'Admin', 'Analista', 'Consulta']} />
                   <tbody>
                     {PERMISOS.map((p) => (
                       <tr key={p.accion}>
@@ -308,7 +308,7 @@ export default function Info() {
             <div className="panel revelar">
               <h3>Cuando una skill contradice al proyecto, manda el proyecto</h3>
               <table>
-                <thead><tr><th>La skill sugiere</th><th>En CyberGuard se hace</th></tr></thead>
+                <CabeceraTabla columnas={['La skill sugiere', 'En CyberGuard se hace']} />
                 <tbody>{CONFLICTOS_SKILLS.map(([a, b]) => <tr key={a}><td>{a}</td><td>{b}</td></tr>)}</tbody>
               </table>
               <p className="ayuda">Se instalan con <code>npx skills</code> en <code>.claude/skills/</code> y <code>.agents/skills/</code>, con su hash en <code>skills-lock.json</code>. Agregar una es decisión del equipo, en su propio PR.</p>

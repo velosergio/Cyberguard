@@ -78,10 +78,14 @@ export default function AlertaDetalle() {
                 <form className="datos" onSubmit={guardar}>
                   <MensajeError mensaje={global} />
                   <Campo etiqueta="Estado" error={errores.estado}>
-                    <Selector name="estado" value={valores.estado} onChange={cambiar} opciones={catalogos.estadosAlerta} />
+                    {(atributos) => (
+                      <Selector {...atributos} name="estado" value={valores.estado} onChange={cambiar} opciones={catalogos.estadosAlerta} />
+                    )}
                   </Campo>
                   <Campo etiqueta="Nota" error={errores.nota}>
-                    <textarea name="nota" value={valores.nota} onChange={cambiar} maxLength={500} />
+                    {(atributos) => (
+                      <textarea {...atributos} name="nota" value={valores.nota} onChange={cambiar} maxLength={500} />
+                    )}
                   </Campo>
                   <button className="boton" type="submit" disabled={enviando}>Guardar estado</button>
                 </form>

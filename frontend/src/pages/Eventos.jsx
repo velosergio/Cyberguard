@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useCatalogos } from '../catalogos.jsx';
-import { AvisoNavegacion, Encabezado, EnlaceBoton, Estado, Selector } from '../components/ui.jsx';
+import { AvisoNavegacion, CabeceraTabla, Encabezado, EnlaceBoton, Estado, Selector } from '../components/ui.jsx';
 import { formatFecha, useConsulta } from '../util.js';
 
 const SIN_FILTROS = { ip: '', tipo: '', desde: '', hasta: '' };
@@ -40,9 +40,7 @@ export default function Eventos() {
             <p className="vacio">No hay eventos con esos filtros.</p>
           ) : (
             <table>
-              <thead>
-                <tr><th>Fecha</th><th>IP</th><th>Dispositivo</th><th>Tipo</th><th>Puerto</th><th>Importancia</th><th>Detalle</th></tr>
-              </thead>
+              <CabeceraTabla columnas={['Fecha', 'IP', 'Dispositivo', 'Tipo', 'Puerto', 'Importancia', 'Detalle']} />
               <tbody>
                 {eventos.map((e) => (
                   <tr key={e.idEventos}>

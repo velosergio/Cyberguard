@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useCatalogos } from '../catalogos.jsx';
-import { AvisoNavegacion, Encabezado, EnlaceBoton, Estado } from '../components/ui.jsx';
+import { AvisoNavegacion, CabeceraTabla, Encabezado, EnlaceBoton, Estado } from '../components/ui.jsx';
 import { useConsulta } from '../util.js';
 
 export default function Usuarios() {
@@ -18,9 +18,7 @@ export default function Usuarios() {
       {usuarios && (
         <section className="panel">
           <table>
-            <thead>
-              <tr><th>Nombre</th><th>Usuario</th><th>Correo</th><th>Rol</th><th>Estado</th><th></th></tr>
-            </thead>
+            <CabeceraTabla columnas={['Nombre', 'Usuario', 'Correo', 'Rol', 'Estado', '']} />
             <tbody>
               {usuarios.map((u) => (
                 <tr key={u.idUsuarios}>
