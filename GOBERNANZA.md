@@ -56,6 +56,7 @@ El reparto se revisa en la planeación de cada entrega; un cambio se registra ed
 | --- | --- | --- |
 | Alcance, requerimientos, prioridades | Product Owner con el equipo; el docente tiene la última palabra | Backlog y documento del proyecto |
 | Arquitectura, tecnologías, dependencias nuevas | Consenso del equipo; si no hay acuerdo, mayoría simple | Sección «Decisiones de diseño» de `Docs/GUIA.md` |
+| Agregar, actualizar o quitar una skill de asistentes de IA | Consenso del equipo, igual que una dependencia | PR con la tabla de skills de `AGENTS.md` y `skills-lock.json` |
 | Implementación dentro de una tarea | Quien la desarrolla, sujeta a revisión | Pull request |
 | Calibración de reglas (puntos, umbrales, ventanas) | Equipo, con datos de prueba que la justifiquen | PR con el escenario de prueba en `MotorAnalisisTest` |
 | Cambios a este documento | Todo el equipo | PR aprobado por la mayoría de los integrantes |
@@ -104,9 +105,19 @@ El equipo usa Claude Code y Cursor como apoyo, con estas reglas:
 
 - **La responsabilidad es de quien integra el cambio.** El código generado se lee, se entiende y se prueba como cualquier otro, y pasa por la misma revisión.
 - `CLAUDE.md` contiene las instrucciones para el asistente. Si cambia la arquitectura o una convención, se actualiza en el mismo PR.
+- `AGENTS.md` es el punto de entrada para cualquier asistente (Claude Code, Cursor, Copilot, Codex): remite a `CLAUDE.md` y lista las skills del proyecto.
 - Los commits hechos con ayuda de IA llevan la línea `Co-Authored-By` que corresponda.
 - No se pegan en un asistente credenciales, secretos ni datos reales de terceros.
 - Lo que se entrega al docente debe explicarlo cualquier integrante del equipo.
+
+### Skills de los asistentes
+
+El repositorio versiona skills de [skills.sh](https://skills.sh/), instaladas con `npx skills` en `.claude/skills/` (Claude Code) y `.agents/skills/` (Cursor, Copilot, Codex), con su origen y hash en `skills-lock.json`. La lista, para qué sirve cada una y los comandos están en `AGENTS.md`.
+
+- **Las convenciones del proyecto mandan.** Una skill es una guía genérica de terceros; si contradice `CLAUDE.md` (manejo de errores, permisos en `SecurityConfig`, H2 en pruebas, enums como `STRING`…), se sigue `CLAUDE.md`. Los conflictos conocidos están listados en `AGENTS.md`.
+- **Una skill no autoriza alcance nuevo.** Lo que sugiera una skill y quede fuera de la sección 1 o requiera una dependencia nueva se decide como indica la sección 4.
+- **Se revisa antes de instalar.** Una skill se ejecuta con los mismos permisos que el asistente. Antes de agregarla se lee su contenido completo (sobre todo scripts y comandos) y se prefieren fuentes conocidas y con uso amplio (más de 1000 instalaciones en skills.sh).
+- **Cada cambio de skills va en su propio PR** (`docs/skills-...`), que actualiza la tabla de `AGENTS.md` y `skills-lock.json`. Se instala con `--copy` y para `claude-code` y `cursor` a la vez, para que las dos carpetas queden iguales.
 
 ## 9. Documentación
 
@@ -120,6 +131,7 @@ El equipo usa Claude Code y Cursor como apoyo, con estas reglas:
 | `Docs/instalacion.md` | cambia el procedimiento de instalación o aparece un problema frecuente |
 | `Docs/img/fuentes/*.mmd` | cambia lo que muestra un diagrama; se regenera el PNG |
 | `CLAUDE.md` | cambia la arquitectura, un comando o una convención |
+| `AGENTS.md` y `skills-lock.json` | se agrega, actualiza o quita una skill, o aparece un conflicto entre una skill y las convenciones |
 | Documento del proyecto | en cada entrega académica |
 
 La documentación describe el sistema **tal como está construido**. Lo pendiente se marca como pendiente.

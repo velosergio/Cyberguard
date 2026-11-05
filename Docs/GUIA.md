@@ -212,7 +212,7 @@ La zona horaria de la aplicación y de JDBC es `America/Bogota`.
 
 **Formularios y DTO aparte de las entidades.** `UsuarioForm`, `EventoForm` y el resto reciben lo que envía el frontend y llevan las validaciones de Jakarta. Hacia afuera, la API responde con DTO (`UsuarioDto`, `AlertaDto`…), no con entidades JPA. Así el JSON nunca incluye la contraseña cifrada y una entidad con relaciones perezosas no rompe la serialización.
 
-**Backend y frontend separados.** El backend expone una API REST y no sabe nada de pantallas; el frontend es una aplicación React que se puede compilar y desplegar por su cuenta. Es la misma funcionalidad que tenía la versión con Thymeleaf, con otra frontera entre las dos partes. Las listas de valores (tipos de evento, estados, roles) las sirve `GET /api/catalogos`, para no repetir los enums en JavaScript.
+**Backend y frontend separados.** El backend expone una API REST y no sabe nada de pantallas; el frontend es una aplicación React que se puede compilar y desplegar por su cuenta. Las listas de valores (tipos de evento, estados, roles) las sirve `GET /api/catalogos`, para no repetir los enums en JavaScript.
 
 **`open-in-view` desactivado.** Hibernate no mantiene una conexión abierta mientras se arma la respuesta. Las lecturas necesarias ocurren dentro del servicio, en una transacción. El detalle de una alerta, por ejemplo, carga las reglas antes de salir del servicio, y el panel usa un DTO de alerta sin reglas.
 
@@ -229,6 +229,8 @@ La zona horaria de la aplicación y de JDBC es `America/Bogota`.
 **Configuración en `backend/.env`.** La conexión (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`), el puerto (`SERVER_PORT`), el secreto JWT y los orígenes CORS se leen de `backend/.env` con la dependencia `springboot3-dotenv`. `application.properties` solo referencia esas variables, con valores por defecto de laboratorio. Así cada integrante usa su propia contraseña de MySQL sin tocar un archivo versionado. Se sube `.env.example` como plantilla; `.env` queda fuera del repositorio. Detalle en `conexion.md`.
 
 **Identificadores con nombre propio.** La clave primaria de cada tabla se llama `id_<tabla>` (`id_usuarios`, `id_dispositivos`, `id_eventos`, `id_reglas`, `id_alertas`) y en Java `id<Tabla>` (`idDispositivos`…). El mismo nombre llega al JSON y al frontend. Como `ddl-auto=update` no renombra columnas, una base creada antes del cambio hay que recrearla (ver `conexion.md`).
+
+**Skills de asistentes versionadas en el repositorio.** El equipo programa con Claude Code y Cursor. Para que los dos reciban la misma guía sobre Spring Boot, Spring Security, pruebas, React y MySQL, el repositorio trae seis skills de skills.sh (`.claude/skills/`, `.agents/skills/`, `skills-lock.json`), instaladas como copia y no como enlace porque los enlaces simbólicos fallan en Windows sin permisos de administrador. Son guías genéricas, así que `CLAUDE.md` tiene prioridad cuando chocan con una convención del proyecto; los choques conocidos están en `AGENTS.md`.
 
 **Datos de demostración solo si la tabla está vacía.** Reiniciar la aplicación no duplica usuarios ni eventos. Los eventos de ejemplo se registran con `EventoService`, así el panel de la primera visita ya muestra el circuito completo.
 

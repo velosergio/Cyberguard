@@ -95,3 +95,16 @@ Las pruebas usan H2 en memoria y no necesitan MySQL.
 - `Docs/conexion.md` — `.env`, MySQL/Laragon y comprobación de la conexión
 - `Docs/GUIA.md` — qué hace el sistema, la API, la arquitectura y las decisiones de diseño
 - `Docs/base-de-datos.md` — esquema de la base de datos
+- `GOBERNANZA.md` — reglas de trabajo del equipo
+- `AGENTS.md` y `CLAUDE.md` — instrucciones para asistentes de IA y skills del proyecto
+
+## Skills para asistentes de IA
+
+El repositorio trae skills de [skills.sh](https://skills.sh/) para Claude Code (`.claude/skills/`) y Cursor/Copilot (`.agents/skills/`): `find-skills`, `java-springboot`, `springboot-security`, `springboot-tdd`, `vercel-react-best-practices` y `mysql`. Se cargan solas al abrir el proyecto en el asistente; no hay que instalar nada. Para restaurarlas desde `skills-lock.json` o agregar otras (requiere Node.js):
+
+```bat
+npx skills experimental_install
+npx skills find <tema>
+```
+
+Detalle y reglas de uso: `AGENTS.md`.

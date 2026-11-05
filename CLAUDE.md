@@ -15,6 +15,8 @@ Todo el código, los nombres, los mensajes y la documentación están en **espa�
 
 Reglas de trabajo del equipo (ramas, PR, definición de terminado, uso de IA, límites de alcance): `GOBERNANZA.md`.
 
+Skills del proyecto (skills.sh, en `.claude/skills/` y `.agents/skills/`): `find-skills`, `java-springboot`, `springboot-security`, `springboot-tdd`, `vercel-react-best-practices` y `mysql`. Para qué sirve cada una y cómo se administran: `AGENTS.md`. Son guías genéricas: si una contradice este archivo (p. ej. `ProblemDetail`, `@PreAuthorize`, Testcontainers, tablas de catálogo, Next.js), **manda este archivo**.
+
 Documentación de referencia: `Docs/GUIA.md` (API completa, arquitectura y decisiones de diseño), `Docs/base-de-datos.md` (esquema), `Docs/NORMALIZACION.md` (formas normales y desnormalizaciones deliberadas; revísalo antes de agregar columnas copiadas o derivadas), `Docs/conexion.md` (`.env` y base de datos), `Docs/instalacion.md`.
 
 ## Comandos
