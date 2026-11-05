@@ -1,12 +1,17 @@
 flowchart TB
-    NAV["🌐 Navegador<br/>HTML + CSS + JavaScript"]
-    subgraph APP["Aplicación Spring Boot 3.5 · Java 21 · Tomcat :8080"]
+    subgraph CLI["Cliente web · React 19 + Vite · :5173"]
         direction TB
-        SEC["Spring Security<br/>login por formulario · roles · CSRF · BCrypt<br/><i>config/SecurityConfig</i>"]
+        PAG["Páginas<br/><i>frontend/src/pages/</i><br/>Panel · Dispositivos · Eventos · Alertas<br/>Reglas · Reportes · Usuarios · Login"]
+        RUT["Rutas protegidas por rol<br/><i>RutaProtegida.jsx</i> · React Router 7"]
+        APIJS["Cliente HTTP<br/><i>api.js</i> · fetch + token Bearer<br/><i>auth.jsx</i> · sesión en sessionStorage"]
+    end
+    subgraph APP["API REST · Spring Boot 3.5 · Java 21 · Tomcat :8080"]
+        direction TB
+        SEC["Spring Security · servidor de recursos OAuth2<br/>JWT HS256 · roles · BCrypt · CORS · sin estado<br/><i>config/SecurityConfig · JwtConfig · TokenService</i>"]
         subgraph PRES["Capa de presentación"]
-            WEB["Controladores MVC<br/><i>web/</i><br/>Panel · Dispositivo · Evento · Alerta<br/>Regla · Reporte · Usuario · Login"]
+            WEB["Controladores REST<br/><i>web/</i><br/>Auth · Panel · Dispositivo · Evento · Alerta<br/>Regla · Reporte · Usuario · Catálogo"]
             FORM["Formularios con validación<br/><i>web/form/</i> · Jakarta Validation"]
-            TPL["Plantillas Thymeleaf<br/><i>templates/</i>"]
+            DTO["DTO de respuesta JSON<br/><i>web/dto/</i> · ApiExceptionHandler"]
         end
         subgraph NEG["Capa de negocio"]
             SRV["Servicios transaccionales<br/><i>service/</i><br/>EventoService · AlertaService · DispositivoService<br/>UsuarioService · ReglaService · PanelService · ReporteService"]
@@ -20,17 +25,19 @@ flowchart TB
             DOM["Entidades JPA + enums<br/><i>domain/</i>"]
         end
     end
-    DB[("🗄 MySQL / MariaDB<br/>base cyberguard<br/>(H2 en memoria para pruebas)")]
+    DB[("MySQL / MariaDB<br/>base cyberguard<br/>(H2 en memoria para pruebas)")]
 
-    NAV -- "HTTP GET/POST" --> SEC
+    PAG --> RUT
+    PAG --> APIJS
+    APIJS -- "HTTP /api/** · JSON<br/>Authorization: Bearer" --> SEC
     SEC --> WEB
     WEB --> FORM
-    WEB --> TPL
     WEB --> SRV
+    WEB --> DTO
     SRV --> MOT
     MOT --> RGL
     SRV --> REP
     MOT --> REP
     REP --> DOM
     REP -- "JDBC · Hibernate 6" --> DB
-    TPL -- "HTML renderizado en el servidor" --> NAV
+    DTO -- "JSON" --> APIJS

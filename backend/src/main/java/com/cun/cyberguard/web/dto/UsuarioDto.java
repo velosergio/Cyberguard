@@ -6,7 +6,7 @@ import com.cun.cyberguard.domain.enums.Rol;
 import java.time.LocalDateTime;
 
 public record UsuarioDto(
-        Long id,
+        Long idUsuarios,
         String nombre,
         String usuario,
         String correo,
@@ -16,7 +16,7 @@ public record UsuarioDto(
 
     public static UsuarioDto de(Usuario usuario) {
         return new UsuarioDto(
-                usuario.getId(),
+                usuario.getIdUsuarios(),
                 usuario.getNombre(),
                 usuario.getUsuario(),
                 usuario.getCorreo(),

@@ -64,7 +64,7 @@ En una infraestructura de red pueden coexistir computadores, teléfonos, servido
 
 La gestión de eventos de seguridad requiere identificarlos, analizarlos y decidir qué hacer ante las situaciones que puedan representar un riesgo (National Institute of Standards and Technology [NIST], 2012). Los marcos actuales de ciberseguridad también resaltan la importancia de identificar y analizar los riesgos asociados con los sistemas y activos tecnológicos (NIST, 2024).
 
-A partir de esta problemática surge CyberGuard, una aplicación web desarrollada en Java con Spring Boot para registrar, analizar y clasificar eventos de una red autorizada. En la primera entrega se definieron el problema, los objetivos, el alcance, los requerimientos y la arquitectura. Esta segunda entrega documenta el diseño detallado, la solución construida, el estado del desarrollo, las pruebas ejecutadas, los problemas resueltos y lo que queda para la tercera entrega. Todo lo descrito corresponde al código fuente actual del repositorio.
+A partir de esta problemática surge CyberGuard, una aplicación web formada por una API REST en Java con Spring Boot y un cliente web en React, para registrar, analizar y clasificar eventos de una red autorizada. En la primera entrega se definieron el problema, los objetivos, el alcance, los requerimientos y la arquitectura. Esta segunda entrega documenta el diseño detallado, la solución construida, el estado del desarrollo, las pruebas ejecutadas, los problemas resueltos y lo que queda para la tercera entrega. Todo lo descrito corresponde al código fuente actual del repositorio. Durante esta entrega la aplicación pasó de un monolito con vistas renderizadas en el servidor a dos aplicaciones separadas (API y cliente); el documento describe la versión actual.
 
 ---
 
@@ -102,7 +102,7 @@ En la práctica, la herramienta sirve de apoyo a un usuario autorizado que neces
 
 Desde el punto de vista académico, el proyecto exige planificar una solución por módulos y una arquitectura que facilite la integración y la evolución del sistema.
 
-El proyecto también aplica principios de seguridad en el propio software: control de acceso por roles, contraseñas cifradas, protección CSRF y validación de entradas, en línea con los riesgos descritos por el OWASP Top 10 (OWASP Foundation, 2021a) y los controles de verificación de OWASP ASVS (OWASP Foundation, 2021b).
+El proyecto también aplica principios de seguridad en el propio software: control de acceso por roles, contraseñas cifradas, autenticación sin estado con tokens JWT firmados y validación de entradas, en línea con los riesgos descritos por el OWASP Top 10 (OWASP Foundation, 2021a) y los controles de verificación de OWASP ASVS (OWASP Foundation, 2021b).
 
 Finalmente, el desarrollo se realiza solo sobre redes, dispositivos y datos para los que existe autorización. CyberGuard no escanea redes, no captura tráfico y no bloquea conexiones: los eventos se registran en el sistema y se analizan dentro de él.
 
@@ -125,8 +125,8 @@ Desarrollar una plataforma de software denominada CyberGuard, basada principalme
 | Objetivo | Estado | Evidencia en el proyecto |
 | :---- | :---- | :---- |
 | 1. Requerimientos, arquitectura y base de datos | Cumplido | Secciones 6, 9 y 11; paquetes `domain`, `repository`, `service`, `web`; `Docs/base-de-datos.md` |
-| 2. Reglas, clasificación de riesgo e interfaz de consulta | Cumplido | Paquete `analysis`, seis reglas en `analysis/reglas`, `ClasificadorRiesgo`, 16 plantillas Thymeleaf |
-| 3. Metodología y pruebas | En curso | Scrum por sprints; 8 pruebas automáticas aprobadas; plan de pruebas ampliado para la tercera entrega (sección 17) |
+| 2. Reglas, clasificación de riesgo e interfaz de consulta | Cumplido | Paquete `analysis`, seis reglas en `analysis/reglas`, `ClasificadorRiesgo`, API REST en `web/` y cliente React con 14 páginas en `frontend/src/pages` |
+| 3. Metodología y pruebas | En curso | Scrum por sprints; 20 pruebas automáticas aprobadas; plan de pruebas ampliado para la tercera entrega (sección 17) |
 
 ---
 
@@ -136,7 +136,8 @@ Desarrollar una plataforma de software denominada CyberGuard, basada principalme
 
 CyberGuard es una aplicación web académica para registrar, analizar y clasificar eventos de una red autorizada. El alcance implementado hasta esta entrega comprende:
 
-- Autenticación con formulario y gestión de usuarios con tres roles.
+- Autenticación con usuario y contraseña que emite un token JWT, y gestión de usuarios con tres roles.
+- API REST en Spring Boot y cliente web en React que la consume.
 - Inventario de dispositivos de la red (IP, MAC, nombre, tipo, estado, fecha de registro y última actividad).
 - Registro manual de eventos y consulta del historial con filtros por IP, tipo y rango de fechas.
 - Motor de análisis con seis reglas de detección configurables.
@@ -157,6 +158,7 @@ CyberGuard es una aplicación web académica para registrar, analizar y clasific
 - No incluye inteligencia artificial ni aprendizaje automático; la detección es por reglas.
 - No hace análisis de malware.
 - Las reglas se limitan a los seis comportamientos implementados.
+- El token JWT no se puede revocar antes de que expire (120 minutos): si un administrador desactiva una cuenta o le cambia el rol, la sesión abierta conserva sus permisos hasta que el token caduca.
 - El rendimiento depende de los recursos del entorno académico donde se ejecute.
 - La versión actual demuestra los conceptos del proyecto y no está pensada para infraestructuras empresariales de gran escala.
 
@@ -170,32 +172,32 @@ La columna «Implementación» indica la clase o ruta del código que atiende ca
 
 | Código | Requerimiento | Descripción | Implementación | Estado |
 | :---- | :---- | :---- | :---- | :---- |
-| RF01 | Autenticación | Los usuarios registrados ingresan con usuario y contraseña; un usuario inactivo no puede entrar. | `SecurityConfig`, `UsuarioDetailsService`, `/login` | Implementado |
-| RF02 | Gestión de usuarios | El administrador crea, modifica, consulta y desactiva usuarios. Debe quedar al menos un administrador activo y nadie puede desactivarse a sí mismo. | `UsuarioService`, `UsuarioController`, `/usuarios` | Implementado |
-| RF03 | Gestión de dispositivos | Registrar, actualizar y consultar dispositivos. La IP es única y la MAC se normaliza en mayúsculas. | `DispositivoService`, `/dispositivos` | Implementado |
-| RF04 | Registro de eventos | Almacenar eventos con IP, tipo, puerto, fecha, detalle e importancia. El acceso a puerto exige número de puerto. | `EventoService.registrar`, `/eventos/nuevo` | Implementado |
-| RF05 | Consulta de eventos | Consultar el historial filtrado por IP parcial, tipo y rango de fechas. | `EventoService.buscar`, `/eventos` | Implementado |
+| RF01 | Autenticación | Los usuarios registrados ingresan con usuario y contraseña; un usuario inactivo no puede entrar. | `SecurityConfig`, `UsuarioDetailsService`, `AuthController` (`POST /api/auth/login`) | Implementado |
+| RF02 | Gestión de usuarios | El administrador crea, modifica, consulta y desactiva usuarios. Debe quedar al menos un administrador activo y nadie puede desactivarse a sí mismo. | `UsuarioService`, `UsuarioController`, `/api/usuarios` | Implementado |
+| RF03 | Gestión de dispositivos | Registrar, actualizar y consultar dispositivos. La IP es única y la MAC se normaliza en mayúsculas. | `DispositivoService`, `/api/dispositivos` | Implementado |
+| RF04 | Registro de eventos | Almacenar eventos con IP, tipo, puerto, fecha, detalle e importancia. El acceso a puerto exige número de puerto y la fecha no puede ser futura. | `EventoService.registrar`, `POST /api/eventos` | Implementado |
+| RF05 | Consulta de eventos | Consultar el historial filtrado por IP parcial, tipo y rango de fechas. | `EventoService.buscar`, `GET /api/eventos` | Implementado |
 | RF06 | Análisis de eventos | Cada evento registrado se evalúa con las reglas activas. | `MotorAnalisis.analizar` | Implementado |
 | RF07 | Generación de alertas | Si al menos una regla se cumple se crea una alerta pendiente ligada al evento y a las reglas cumplidas. | `AlertaService.crear` | Implementado |
 | RF08 | Clasificación de riesgo | La suma de puntos (0 a 100) se traduce en bajo, medio, alto o crítico. | `ClasificadorRiesgo` | Implementado |
-| RF09 | Gestión de reglas | El administrador ajusta puntuación, umbral, ventana y si la regla está activa; el analista solo consulta. | `ReglaService`, `/reglas` | Implementado |
-| RF10 | Historial | Se conservan todos los eventos y alertas con su fecha, y se consultan con filtros. | `/eventos`, `/alertas` | Implementado |
-| RF11 | Panel de información | Conteo de dispositivos, eventos, alertas, alertas altas y críticas; últimos 8 eventos y últimas 5 alertas. | `PanelService`, `/` | Implementado |
-| RF12 | Reportes | Consulta y descarga en CSV de eventos y alertas con filtros. | `ReporteService`, `/reportes` | Implementado |
-| RF13 | Seguimiento de alertas | El analista o el administrador cambian el estado de la alerta y dejan una nota. | `AlertaService.actualizarEstado`, `/alertas/{id}` | Implementado (nuevo en esta entrega) |
+| RF09 | Gestión de reglas | El administrador ajusta puntuación, umbral, ventana y si la regla está activa; el analista solo consulta. | `ReglaService`, `/api/reglas` | Implementado |
+| RF10 | Historial | Se conservan todos los eventos y alertas con su fecha, y se consultan con filtros. | `/api/eventos`, `/api/alertas` | Implementado |
+| RF11 | Panel de información | Conteo de dispositivos, eventos, alertas, alertas altas y críticas; últimos 8 eventos y últimas 5 alertas. | `PanelService`, `/api/panel` | Implementado |
+| RF12 | Reportes | Consulta y descarga en CSV de eventos y alertas con filtros. | `ReporteService`, `/api/reportes` | Implementado |
+| RF13 | Seguimiento de alertas | El analista o el administrador cambian el estado de la alerta y dejan una nota. | `AlertaService.actualizarEstado`, `PUT /api/alertas/{id}/estado` | Implementado (nuevo en esta entrega) |
 
 ### 6.2 Requerimientos no funcionales
 
 | Código | Atributo | Descripción | Cómo se atiende en el código |
 | :---- | :---- | :---- | :---- |
-| RNF01 | Seguridad | Proteger la información con control de acceso. | Spring Security con roles por URL, BCrypt para contraseñas, protección CSRF en formularios, página `/acceso-denegado`, validación de entradas con Jakarta Validation. |
-| RNF02 | Rendimiento | Procesar eventos sin retrasos innecesarios. | El análisis se hace una sola vez al registrar el evento; solo se consulta el historial de la misma IP dentro de la ventana de cada regla; las listas no vuelven a analizar. |
+| RNF01 | Seguridad | Proteger la información con control de acceso. | Spring Security con roles por endpoint, tokens JWT firmados con HS256 (clave de al menos 32 bytes), API sin estado, CORS limitado a los orígenes configurados, BCrypt para contraseñas, validación de entradas con Jakarta Validation y respuestas 401/403 sin datos. |
+| RNF02 | Rendimiento | Procesar eventos sin retrasos innecesarios. | El análisis se hace una sola vez al registrar el evento; solo se consulta el historial de la misma IP dentro de la ventana de cada regla, hasta la fecha del evento; las listas no vuelven a analizar. |
 | RNF03 | Escalabilidad | Agregar reglas y módulos sin rehacer el sistema. | Patrón estrategia: una regla nueva es una clase que implementa `ReglaDeteccion` más una fila en `reglas`. El motor no cambia. |
-| RNF04 | Mantenibilidad | Componentes independientes y fáciles de modificar. | Paquetes por responsabilidad (`web`, `service`, `analysis`, `repository`, `domain`), inyección por constructor, formularios separados de las entidades. |
-| RNF05 | Usabilidad | Interfaz clara y comprensible. | Menú por secciones, filtros en listas, mensajes de validación en español, botones ocultos según el rol, IP autocompletada al elegir dispositivo. |
-| RNF06 | Disponibilidad | Disponible durante los periodos de operación. | Aplicación autocontenida (Tomcat embebido) que se inicia con un comando; página de error propia. |
+| RNF04 | Mantenibilidad | Componentes independientes y fáciles de modificar. | Paquetes por responsabilidad (`web`, `service`, `analysis`, `repository`, `domain`), inyección por constructor, formularios y DTO separados de las entidades; cliente y API independientes. |
+| RNF05 | Usabilidad | Interfaz clara y comprensible. | Menú por secciones, filtros en listas, mensajes de validación en español junto a cada campo, botones ocultos según el rol, IP autocompletada al elegir dispositivo. |
+| RNF06 | Disponibilidad | Disponible durante los periodos de operación. | La API (Tomcat embebido) y el cliente se inician cada uno con un comando; el cliente muestra mensajes propios cuando la API no responde y ante páginas inexistentes. |
 | RNF07 | Integridad | Relaciones consistentes entre las tablas. | Claves foráneas, columnas únicas (`usuario`, `correo`, `direccion_ip`, `codigo`), enums guardados como texto, operaciones en transacciones (`@Transactional`). |
-| RNF08 | Portabilidad | Ejecutar en distintos equipos del laboratorio. | Maven Wrapper (`mvnw.cmd`) descarga Maven y dependencias; solo se necesita JDK 21+ y MySQL/MariaDB. |
+| RNF08 | Portabilidad | Ejecutar en distintos equipos del laboratorio. | Maven Wrapper (`mvnw.cmd`) descarga Maven y dependencias; `npm install` resuelve el cliente; se necesita JDK 21+, Node.js 20+ y MySQL/MariaDB. La conexión se configura en `backend/.env`. |
 
 ---
 
@@ -210,25 +212,26 @@ CyberGuard maneja tres roles de usuario (enum `Rol`) y un actor interno. Los per
 | Consulta | Humano, rol `CONSULTA` | Ver el panel, los dispositivos, los eventos y las alertas. No crea ni modifica datos ni abre reportes. | `consulta` / `Consulta123*` |
 | Motor de análisis | Sistema (interno) | Evalúa cada evento nuevo con las reglas activas, clasifica el riesgo y crea la alerta. | — |
 
-**Matriz de permisos por ruta** (tomada de `SecurityConfig`)
+**Matriz de permisos por endpoint de la API** (tomada de `SecurityConfig`)
 
-| Ruta | Administrador | Analista | Consulta |
+| Endpoint | Administrador | Analista | Consulta |
 | :---- | :----: | :----: | :----: |
-| `/login`, estilos, script, `/error` | Público | Público | Público |
-| `GET /`, `/dispositivos`, `/eventos`, `/alertas`, `/alertas/{id}` | Sí | Sí | Sí |
-| `GET /dispositivos/nuevo`, `/dispositivos/{id}/editar`, `POST /dispositivos` | Sí | Sí | No |
-| `GET /eventos/nuevo`, `POST /eventos` | Sí | Sí | No |
-| `POST /alertas/{id}/estado` | Sí | Sí | No |
-| `GET /reglas` | Sí | Sí | No |
-| `GET /reglas/{id}/editar`, `POST /reglas/{id}` | Sí | No | No |
-| `/reportes/**` | Sí | Sí | No |
-| `/usuarios/**` | Sí | No | No |
+| `POST /api/auth/login`, `/error` | Público | Público | Público |
+| `GET /api/auth/me`, `/api/panel`, `/api/catalogos` | Sí | Sí | Sí |
+| `GET /api/dispositivos`, `/api/eventos`, `/api/alertas`, `/api/alertas/{id}` | Sí | Sí | Sí |
+| `POST /api/dispositivos`, `PUT /api/dispositivos/{id}` | Sí | Sí | No |
+| `POST /api/eventos` | Sí | Sí | No |
+| `PUT /api/alertas/{id}/estado` | Sí | Sí | No |
+| `GET /api/reglas`, `/api/reglas/{id}` | Sí | Sí | No |
+| `PUT /api/reglas/{id}` | Sí | No | No |
+| `/api/reportes/**` (consulta y CSV) | Sí | Sí | No |
+| `/api/usuarios/**` | Sí | No | No |
 
-Quien no tiene sesión es redirigido a `/login`; quien tiene sesión pero no el rol necesario ve `/acceso-denegado`.
+Una petición sin token, con un token vencido o con la firma alterada recibe 401, y el cliente vuelve a la pantalla de login. Con un token válido pero sin el rol necesario la API responde 403. El cliente aplica los mismos permisos a sus rutas (`RutaProtegida.jsx`): oculta las opciones que el rol no puede usar y, si se abre la dirección a mano, muestra «Acceso denegado». La protección real está en la API; la del cliente solo evita mostrar pantallas inútiles.
 
 ![Figura 10. Permisos por rol](img/10-permisos-roles.png)
 
-*Figura 10. Permisos por rol según `SecurityConfig`. Elaboración propia.*
+*Figura 10. Permisos por rol sobre los endpoints de la API según `SecurityConfig`. Elaboración propia.*
 
 ---
 
@@ -246,7 +249,7 @@ Muestra qué puede hacer cada actor. Registrar un evento incluye su análisis, y
 
 | Caso de uso | Actor principal | Descripción breve |
 | :---- | :---- | :---- |
-| CU01 Iniciar / cerrar sesión | Todos | Ingreso con usuario y contraseña; salida con `/logout`. |
+| CU01 Iniciar / cerrar sesión | Todos | Ingreso con usuario y contraseña, que entrega un token JWT; al salir, el cliente borra el token. |
 | CU02 Consultar panel | Todos | Ver indicadores y actividad reciente. |
 | CU03 Consultar dispositivos, eventos y alertas | Todos | Listas con filtros y detalle de alerta. |
 | CU04 Registrar / editar dispositivo | Analista | Alta y edición del inventario. |
@@ -292,7 +295,7 @@ La tabla `usuarios` no se relaciona con las demás: el sistema no guarda todaví
 
 ### 8.5 Diagrama de secuencia: registrar un evento
 
-Es el flujo principal del sistema. Todo ocurre dentro de una transacción de `EventoService.registrar`.
+Es el flujo principal del sistema. El cliente envía el evento en JSON con el token, y todo el trabajo del servidor ocurre dentro de una transacción de `EventoService.registrar`.
 
 ![Figura 6. Diagrama de secuencia del registro de un evento](img/06-secuencia-registro-evento.png)
 
@@ -320,6 +323,8 @@ El diagrama muestra el flujo recomendado. En la versión actual el formulario pe
 
 *Figura 9. Diagrama de despliegue en el entorno de laboratorio. Elaboración propia.*
 
+Se ejecutan dos procesos: el cliente React (servidor de Vite en el puerto 5173 durante el desarrollo, o los archivos de `frontend/dist` en cualquier servidor web) y la API en el puerto 8080. En desarrollo, Vite reenvía las peticiones `/api` a la API, así que el navegador no necesita CORS; si el cliente se publica en otra dirección, su origen se agrega a `CYBERGUARD_CORS_ORIGENES`.
+
 ---
 
 ## 9. DISEÑO DE LA SOLUCIÓN
@@ -336,7 +341,7 @@ El análisis ocurre en el momento del registro. Consultar listas no vuelve a ana
 
 ### 9.2 Modelo de datos
 
-La base `cyberguard` tiene cinco tablas principales más una tabla de unión. Hibernate las crea y actualiza al arrancar (`ddl-auto=update`). Los identificadores son `BIGINT` autoincrementales y los enums se guardan como texto (`EnumType.STRING`), de modo que reordenar un enum en Java no altera los datos guardados.
+La base `cyberguard` tiene cinco tablas principales más una tabla de unión. Hibernate las crea y actualiza al arrancar (`ddl-auto=update`). Los identificadores son `BIGINT` autoincrementales con el nombre `id_<tabla>` (por ejemplo `id_eventos`) y los enums se guardan como texto (`EnumType.STRING`), de modo que reordenar un enum en Java no altera los datos guardados.
 
 | Tabla | Contenido principal |
 | :---- | :---- |
@@ -357,7 +362,7 @@ El motor separa **qué se evalúa** de **con qué números**:
 - **Los números viven en la base.** La fila de la tabla `reglas` guarda puntuación, umbral, ventana y si está activa. El administrador los ajusta desde la pantalla sin tocar código.
 - **Un mapa une las dos partes.** Spring inyecta en `MotorAnalisis` la lista de todas las clases `@Component` que implementan `ReglaDeteccion`, y el motor las guarda en un `HashMap<String, ReglaDeteccion>` por código. Si una fila no tiene clase, se ignora.
 
-Cada evaluación recibe un `ContextoAnalisis` (un *record* de Java) con el evento nuevo, la regla con sus parámetros, el historial reciente de la misma IP dentro de la ventana y si esa IP pertenece a un dispositivo registrado que no esté marcado como desconocido. El historial incluye el evento recién guardado; por eso un umbral de 5 significa «cinco eventos en la ventana, contando el actual».
+Cada evaluación recibe un `ContextoAnalisis` (un *record* de Java) con el evento nuevo, la regla con sus parámetros, el historial reciente de la misma IP dentro de la ventana y si esa IP pertenece a un dispositivo registrado que no esté marcado como desconocido. La ventana va desde la fecha del evento menos los minutos de la regla hasta la fecha del evento: un evento registrado con una fecha pasada no cuenta los que ocurrieron después. El historial incluye el evento recién guardado; por eso un umbral de 5 significa «cinco eventos en la ventana, contando el actual».
 
 **Reglas implementadas** (valores iniciales cargados por `DataInitializer`)
 
@@ -390,28 +395,32 @@ Una alerta alta o crítica es una señal para que una persona la revise, no un d
 | Decisión | Motivo |
 | :---- | :---- |
 | Una alerta por evento analizado | Si saltan tres reglas a la vez, queda una sola alerta con la suma y la lista de reglas. El seguimiento tiene un solo lugar. |
-| Formularios separados de las entidades (`web/form`) | La entidad JPA no se llena directamente desde el HTML. Evita, por ejemplo, que editar un usuario sobrescriba la contraseña cifrada. |
-| Plantillas Thymeleaf en el servidor | HTML, CSS y poco JavaScript bastan; los permisos se reflejan en la misma plantilla con `thymeleaf-extras-springsecurity6`. |
-| `open-in-view` desactivado | La conexión a la base no queda abierta mientras se dibuja el HTML; las lecturas ocurren en transacciones del servicio. |
+| Formularios separados de las entidades (`web/form`) | La entidad JPA no se llena directamente desde el JSON de la petición. Evita, por ejemplo, que editar un usuario sobrescriba la contraseña cifrada. |
+| API REST y cliente React separados | Cada parte se desarrolla y prueba por su lado: la API se verifica con MockMvc sin navegador y el cliente puede cambiar sin tocar la lógica. También deja la API lista para otros clientes, como una carga masiva desde un script. |
+| Tokens JWT en lugar de sesión en el servidor | La API no guarda estado entre peticiones y no necesita CSRF, porque el token viaja en la cabecera `Authorization` y no en una cookie. El rol va dentro del token, así que cada petición se autoriza sin consultar la base. |
+| DTO de respuesta (`web/dto`) | La API nunca devuelve entidades JPA: no expone el hash de la contraseña y evita errores de carga perezosa al convertir a JSON. |
+| `open-in-view` desactivado | La conexión a la base no queda abierta mientras se escribe la respuesta; las lecturas ocurren en transacciones del servicio y los controladores convierten el resultado en DTO. |
 | Datos de demostración solo con tablas vacías | Reiniciar la aplicación no duplica filas; los eventos de ejemplo pasan por `EventoService`, así que la primera visita ya muestra alertas. |
 | CSV con punto y coma y marca BOM | Se abre bien en Excel con configuración regional en español y conserva las tildes. |
 | Zona horaria `America/Bogota` | Las fechas de eventos y alertas coinciden con la hora local del laboratorio. |
 
 ### 9.6 Diseño de la interfaz
 
-La interfaz usa una plantilla base (`fragments/layout.html`) con barra de navegación, tema oscuro y tablas con etiquetas de color por nivel de riesgo. Las pantallas son:
+El cliente es una aplicación de una sola página en React. Un componente base (`components/Layout.jsx`) dibuja la barra de navegación, con tema oscuro y tablas con etiquetas de color por nivel de riesgo. Las rutas están en `App.jsx` y cada grupo se protege por rol con `RutaProtegida.jsx`:
 
-| Ruta | Pantalla |
-| :---- | :---- |
-| `/login` | Inicio de sesión |
-| `/` | Panel con indicadores |
-| `/dispositivos` | Inventario y formulario |
-| `/eventos` | Historial con filtros y formulario de registro |
-| `/alertas` | Lista con filtros y detalle con seguimiento |
-| `/reglas` | Catálogo y edición de parámetros |
-| `/reportes` | Consulta y descarga CSV |
-| `/usuarios` | Gestión de cuentas |
-| `/acceso-denegado`, `/error` | Páginas de error propias |
+| Ruta del cliente | Pantalla | Roles |
+| :---- | :---- | :---- |
+| `/login` | Inicio de sesión | Público |
+| `/` | Panel con indicadores | Todos |
+| `/dispositivos`, `/dispositivos/nuevo`, `/dispositivos/:id/editar` | Inventario y formulario | Lista: todos; formulario: analista y administrador |
+| `/eventos`, `/eventos/nuevo` | Historial con filtros y formulario de registro | Lista: todos; registro: analista y administrador |
+| `/alertas`, `/alertas/:id` | Lista con filtros y detalle con seguimiento | Todos; el seguimiento solo lo ven analista y administrador |
+| `/reglas`, `/reglas/:id/editar` | Catálogo y edición de parámetros | Catálogo: analista y administrador; edición: administrador |
+| `/reportes` | Consulta y descarga CSV | Analista y administrador |
+| `/usuarios`, `/usuarios/nuevo`, `/usuarios/:id/editar` | Gestión de cuentas | Administrador |
+| cualquier otra | «Página no encontrada» (`NoEncontrada.jsx`) | Todos |
+
+Las listas de opciones (tipos de evento, niveles, estados, roles) se cargan una vez desde `GET /api/catalogos`, de modo que el cliente no repite los enums de Java.
 
 ---
 
@@ -423,15 +432,18 @@ La primera entrega dejaba abiertas algunas opciones («PostgreSQL o MySQL»). La
 | :---- | :---- | :---- | :---- |
 | Lenguaje | Java | 21 (compila con JDK 21 o superior) | Todo el backend (Oracle, s. f.). |
 | Framework | Spring Boot | 3.5.16 | Configuración, servidor embebido e inyección de dependencias (VMware, s. f.). |
-| Web | Spring MVC + Tomcat embebido | Incluido en Spring Boot | Controladores y servidor en el puerto 8080. |
-| Vistas | Thymeleaf + extras Spring Security 6 | Incluido en Spring Boot | Plantillas HTML renderizadas en el servidor (Thymeleaf, s. f.). |
-| Seguridad | Spring Security | 6.x | Login, roles, CSRF y BCrypt (Spring, s. f.-a). |
+| Web | Spring MVC + Tomcat embebido | Incluido en Spring Boot | Controladores REST con respuestas JSON en el puerto 8080. |
+| Seguridad | Spring Security + servidor de recursos OAuth2 | 6.x | Login, roles por endpoint y BCrypt (Spring, s. f.-a). |
+| Tokens | JWT firmado con HS256 (Nimbus JOSE + JWT) | Incluido en `spring-boot-starter-oauth2-resource-server` | Emisión y verificación del token de sesión (Jones et al., 2015). |
+| Configuración | spring-dotenv (`springboot3-dotenv`) | 5.1.0 | Lee `backend/.env` con la conexión a la base, la clave JWT, CORS y el puerto. |
 | Validación | Jakarta Bean Validation (Hibernate Validator) | 3.x | Reglas en los formularios (`@NotBlank`, `@Pattern`, `@Min`, `@Max`, `@Email`, `@Size`). |
 | Persistencia | Spring Data JPA + Hibernate ORM | 6.x | Repositorios y mapeo objeto-relacional (Spring, s. f.-b). |
 | Base de datos | MySQL / MariaDB (XAMPP o Laragon) | MySQL 8+ / MariaDB 10+ | Almacenamiento principal (Oracle Corporation, s. f.). |
 | Driver | mysql-connector-j | Gestionado por Spring Boot | Conexión JDBC. |
 | Base de pruebas | H2 en memoria (modo MySQL) | Gestionado por Spring Boot | Pruebas sin MySQL. |
-| Frontend | HTML5, CSS3, JavaScript | — | Estilos propios (`app.css`) y un script que autocompleta la IP y la fecha actual. |
+| Cliente web | React + React Router | 19 / 7 | Interfaz de una sola página que consume la API (Meta Open Source, s. f.). |
+| Herramientas del cliente | Vite + Node.js | Vite 8 / Node.js 20+ | Servidor de desarrollo con proxy a la API y compilación a archivos estáticos (Vite, s. f.). |
+| Estilos | CSS3 | — | Hoja propia (`frontend/src/index.css`). |
 | Pruebas | JUnit 5, Mockito, Spring Security Test, MockMvc | Incluidos en `spring-boot-starter-test` | Pruebas unitarias y de integración (JUnit Team, s. f.; Mockito, s. f.). |
 | Construcción | Maven Wrapper | Maven 3.9.11 | Compilar, probar y ejecutar sin instalar Maven. |
 | Control de versiones | Git y GitHub | — | Historial y trabajo colaborativo. |
@@ -444,16 +456,17 @@ La primera entrega dejaba abiertas algunas opciones («PostgreSQL o MySQL»). La
 
 ## 11. ARQUITECTURA PROPUESTA
 
-CyberGuard es una aplicación web monolítica organizada en capas (Fowler, 2002). El navegador pide una página y Spring Boot responde con HTML ya generado. No hay una API ni un frontend separados.
+CyberGuard está formado por dos aplicaciones. El cliente web en React corre en el navegador y llama a una API REST en Spring Boot, que está organizada en capas (Fowler, 2002). El cliente envía y recibe JSON y adjunta en cada petición el token JWT obtenido al iniciar sesión; la API no guarda sesiones.
 
 ![Figura 2. Arquitectura por capas](img/02-arquitectura-capas.png)
 
-*Figura 2. Arquitectura por capas de CyberGuard. Elaboración propia.*
+*Figura 2. Arquitectura de CyberGuard: cliente React y API REST por capas. Elaboración propia.*
 
 | Capa | Paquete | Responsabilidad |
 | :---- | :---- | :---- |
-| Seguridad | `config/` | Filtro de Spring Security, codificador BCrypt, carga de usuarios y datos de demostración. |
-| Presentación | `web/`, `web/form/`, `templates/`, `static/` | Recibir peticiones, validar formularios, elegir la vista y mostrar mensajes. |
+| Cliente web | `frontend/src/` | Pantallas, rutas por rol, sesión en `sessionStorage` y llamadas a la API (`api.js`). |
+| Seguridad | `config/` | Filtro de Spring Security, emisión y verificación de JWT (`JwtConfig`, `TokenService`), CORS, codificador BCrypt, carga de usuarios y datos de demostración. |
+| Presentación | `web/`, `web/form/`, `web/dto/` | Recibir peticiones JSON, validar formularios, devolver DTO y traducir errores a respuestas uniformes (`ApiExceptionHandler`). |
 | Negocio | `service/` | Reglas de negocio, transacciones y consultas que necesita cada pantalla. |
 | Análisis | `analysis/`, `analysis/reglas/` | Evaluar reglas, sumar puntos y clasificar el riesgo. |
 | Acceso a datos | `repository/`, `domain/` | Repositorios Spring Data, entidades JPA y enums. |
@@ -464,25 +477,30 @@ Cada capa llama solo a la de abajo, por inyección de dependencias en el constru
 **Estructura del código fuente**
 
 ```text
-src/main/java/com/cun/cyberguard
+backend/src/main/java/com/cun/cyberguard
 ├── CyberguardApplication.java   arranque de Spring Boot
-├── config/                      SecurityConfig, UsuarioDetailsService, DataInitializer
-├── web/                         8 controladores + NavegacionAdvice
-│   └── form/                    5 formularios con validaciones
-├── service/                     7 servicios + utilidad de fechas
+├── config/                      SecurityConfig, JwtConfig, TokenService, UsuarioDetailsService, DataInitializer
+├── web/                         9 controladores REST + ApiExceptionHandler
+│   ├── form/                    5 formularios con validaciones
+│   └── dto/                     10 DTO de respuesta
+├── service/                     7 servicios + utilidad de fechas + excepción de recurso no encontrado
 ├── analysis/                    MotorAnalisis, ClasificadorRiesgo, contratos y records
 │   └── reglas/                  6 reglas de detección
 ├── domain/                      5 entidades JPA
 │   └── enums/                   7 enumeraciones
 └── repository/                  5 repositorios Spring Data
-src/main/resources
-├── templates/                   16 plantillas Thymeleaf
-├── static/                      app.css, app.js, favicon.svg
-└── application.properties
-src/test                         3 clases de prueba + application-test.properties
+backend/src/main/resources
+└── application.properties       lee sus valores de backend/.env
+backend/src/test                 5 clases de prueba + application-test.properties
+frontend/src
+├── main.jsx, App.jsx            arranque y rutas
+├── api.js, auth.jsx             cliente HTTP con token y contexto de sesión
+├── catalogos.jsx, util.js       catálogos de la API y utilidades
+├── components/                  Layout, RutaProtegida, controles y hook de formularios
+└── pages/                       14 páginas
 ```
 
-En total hay 56 archivos Java en `src/main` y unas 3 000 líneas de código Java entre fuente y pruebas.
+En total hay 70 archivos Java en `backend/src/main` y unas 5 100 líneas de código entre el backend (Java, fuente y pruebas) y el cliente (JavaScript).
 
 ---
 
@@ -490,12 +508,13 @@ En total hay 56 archivos Java en `src/main` y unas 3 000 líneas de código Java
 
 ### 12.1 Autenticación y control de acceso
 
-- Inicio de sesión con formulario propio en `/login`, mensajes de error y de sesión cerrada.
-- `UsuarioDetailsService` carga el usuario desde la base; si está inactivo, no puede entrar.
+- `POST /api/auth/login` recibe usuario y contraseña y devuelve un token JWT firmado con HS256, válido por 120 minutos, con el usuario y su rol. `GET /api/auth/me` devuelve los datos del usuario del token.
+- `UsuarioDetailsService` carga el usuario desde la base; si está inactivo, no puede entrar («La cuenta está inactiva»).
 - Contraseñas cifradas con BCrypt (Provos & Mazières, 1999).
-- Protección CSRF en todos los formularios.
-- Rutas protegidas por rol y página `/acceso-denegado`.
-- El menú oculta las opciones que el rol no puede usar.
+- La API es sin estado: cada petición lleva el token en la cabecera `Authorization: Bearer`. Sin token, con el token vencido o con la firma alterada responde 401; sin el rol necesario, 403.
+- La clave de firma sale de `CYBERGUARD_JWT_SECRET` y la aplicación no arranca si tiene menos de 32 bytes.
+- El cliente guarda el token en `sessionStorage`, que se borra al cerrar la pestaña. Ante un 401 cierra la sesión y vuelve al login; al pulsar «Salir» borra el token y muestra «Sesión cerrada».
+- El cliente protege sus rutas por rol, muestra «Acceso denegado» si se abre una dirección sin permiso y el menú oculta las opciones que el rol no puede usar.
 
 ### 12.2 Gestión de usuarios (administrador)
 
@@ -514,7 +533,7 @@ En total hay 56 archivos Java en `src/main` y unas 3 000 líneas de código Java
 ### 12.4 Registro y consulta de eventos
 
 - Formulario con dispositivo opcional, IP, tipo, puerto (1 a 65535), fecha y hora, detalle (hasta 500 caracteres) e importancia.
-- Al elegir un dispositivo, un script rellena la IP; la fecha se propone con la hora actual.
+- Al elegir un dispositivo, el cliente rellena la IP; la fecha se propone con la hora actual y no se aceptan fechas futuras (`@PastOrPresent` en la API y `max` en el campo de fecha).
 - Si no se elige dispositivo, se busca la IP en el inventario; si no existe, el evento se guarda igual, sin dispositivo.
 - El tipo «acceso a puerto» exige puerto.
 - Historial filtrable por IP parcial, tipo y rango de fechas.
@@ -547,7 +566,7 @@ En total hay 56 archivos Java en `src/main` y unas 3 000 líneas de código Java
 ### 12.9 Reportes
 
 - Consulta de eventos (por IP, tipo y fechas) y de alertas (por nivel, estado y fechas).
-- Descarga en CSV separado por punto y coma, con BOM UTF-8, y con escape de comillas y saltos de línea.
+- Descarga en CSV separado por punto y coma, con BOM UTF-8, y con escape de comillas y saltos de línea. El cliente pide el archivo con el token y lo guarda desde el navegador, porque un enlace directo no podría enviar la cabecera de autorización.
 
 ### 12.10 Datos de demostración
 
@@ -567,6 +586,7 @@ En total hay 56 archivos Java en `src/main` y unas 3 000 líneas de código Java
 | 4. Motor de análisis | Reglas y clasificación de riesgo | Terminada |
 | 5. Alertas e interfaz | Alertas, panel, consultas y reportes | Terminada |
 | 6. Integración | Integración de módulos, seguridad y datos de demostración | Terminada |
+| 6b. Separación cliente / API | API REST con JWT y cliente React | Terminada |
 | 7. Pruebas | Pruebas de componentes y corrección de errores | En curso |
 | 8. Documentación | Documento del proyecto, guía, instalación y base de datos | En curso |
 
@@ -583,7 +603,8 @@ En total hay 56 archivos Java en `src/main` y unas 3 000 líneas de código Java
 | Reglas | Completo | Solo se editan parámetros, no se crean reglas nuevas desde la interfaz. |
 | Panel | Completo | Indicadores numéricos; sin gráficas. |
 | Reportes | Completo | Solo CSV. |
-| Pruebas automáticas | Parcial | 8 pruebas; faltan pruebas de servicios y de más rutas. |
+| Cliente web (React) | Completo | 14 páginas; sin pruebas automáticas propias. |
+| Pruebas automáticas | Parcial | 20 pruebas del backend; faltan pruebas de servicios, de cada regla por separado y del cliente. |
 
 Los 13 requerimientos funcionales y los 8 no funcionales tienen implementación en el código. El trabajo pendiente se concentra en ampliar las pruebas, mejorar la trazabilidad y agregar funciones complementarias (sección 17).
 
@@ -595,12 +616,17 @@ Los 13 requerimientos funcionales y los 8 no funcionales tienen implementación 
 | `cd061a4` | 2026-09-28 | Capturas de pantalla del recorrido por la interfaz |
 | `984e765` | 2026-09-28 | Organización de la documentación y guía de instalación |
 | `729d389` | 2026-09-28 | Documentación del esquema de base de datos |
+| `78aa6cb` | 2026-09-30 | Documento de la segunda entrega |
+| `5d875b9` | 2026-09-30 | Mejoras de nulabilidad y documentación |
+| `299aacf` | 2026-10-05 | Separación en API REST con JWT y cliente React |
 
 ---
 
 ## 14. EVIDENCIAS DEL SISTEMA
 
 Las capturas se tomaron de la aplicación en ejecución con los datos de demostración. Están en la carpeta `screenshots/` del repositorio.
+
+> **Pendiente.** Estas capturas son del 28 de septiembre de 2026, anteriores a la separación en API y cliente React (5 de octubre). Hay que volver a tomarlas con el cliente actual antes de entregar. La Evidencia 4 pasa a ser el mensaje «Acceso denegado» del cliente y la Evidencia 21, la pantalla «Página no encontrada».
 
 ### 14.1 Acceso
 
@@ -618,7 +644,7 @@ Las capturas se tomaron de la aplicación en ejecución con los datos de demostr
 
 ![Evidencia 4. Acceso denegado](../screenshots/19-acceso-denegado.png)
 
-*Evidencia 4. Página de acceso denegado cuando el rol no tiene permiso.*
+*Evidencia 4. Mensaje de acceso denegado cuando el rol no tiene permiso.*
 
 ### 14.2 Panel
 
@@ -702,7 +728,7 @@ Las capturas se tomaron de la aplicación en ejecución con los datos de demostr
 
 ![Evidencia 21. Página de error](../screenshots/16-error.png)
 
-*Evidencia 21. Página de error propia de la aplicación.*
+*Evidencia 21. Página propia para direcciones inexistentes.*
 
 ---
 
@@ -710,9 +736,9 @@ Las capturas se tomaron de la aplicación en ejecución con los datos de demostr
 
 ### 15.1 Pruebas automáticas
 
-Se ejecutan con `mvnw.cmd test` sobre una base H2 en memoria (perfil `test`), sin necesidad de MySQL. Usan JUnit 5, Mockito y MockMvc con Spring Security Test.
+Se ejecutan con `mvnw.cmd test` sobre una base H2 en memoria (perfil `test`), sin necesidad de MySQL. Usan JUnit 5, Mockito, Spring Data JPA Test y MockMvc con Spring Security Test.
 
-**Última ejecución: 30 de septiembre de 2026. Resultado: 8 pruebas, 0 fallos, 0 errores, 0 omitidas.**
+**Última ejecución: 5 de noviembre de 2026. Resultado: 20 pruebas, 0 fallos, 0 errores, 0 omitidas.**
 
 | Clase de prueba | Tipo | Prueba | Qué verifica | Resultado |
 | :---- | :---- | :---- | :---- | :---- |
@@ -722,15 +748,30 @@ Se ejecutan con `mvnw.cmd test` sobre una base H2 en memoria (perfil `test`), si
 | `MotorAnalisisTest` | Unitaria con Mockito | `detectaMultiplesIntentosDeConexion` | Ocho intentos de conexión con umbral 8 activan la regla: 20 puntos. | Aprobada |
 | `MotorAnalisisTest` | Unitaria con Mockito | `detectaEscaneoDePuertos` | Accesos a los puertos 22, 80, 443, 8080 y 3306 activan la regla: 25 puntos, nivel medio. | Aprobada |
 | `MotorAnalisisTest` | Unitaria con Mockito | `sumaVariasReglasYRecortaEnCien` | Dos reglas de 60 puntos se suman, se recortan a 100 y dan nivel crítico. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `consultaNoPuedeCrearUsuarios` | Un usuario con rol consulta recibe 403 al enviar `POST /usuarios`. | Aprobada |
-| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `anonimoEsRedirigidoAlLogin` | Un visitante sin sesión que pide `/` es redirigido a `/login`. | Aprobada |
+| `EventoRepositoryTest` | Integración (JPA + H2) | `historialDeUnEventoPasadoNoIncluyeEventosPosteriores` | Con cinco eventos recientes y uno registrado después con fecha de una hora antes, el historial de este último solo lo contiene a él. | Aprobada |
+| `EventoRepositoryTest` | Integración (JPA + H2) | `historialIncluyeLosLimitesDeLaVentanaYFiltraPorIp` | Los eventos en los dos extremos de la ventana cuentan; los anteriores y los de otra IP no. | Aprobada |
+| `EventoFormTest` | Unitaria (Bean Validation) | `rechazaFechaFutura` | Una fecha de mañana produce un error en `fechaHora`. | Aprobada |
+| `EventoFormTest` | Unitaria (Bean Validation) | `aceptaFechaPasada` | Una fecha de hace una hora no produce errores. | Aprobada |
+| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `anonimoRecibe401` | Sin token, `GET /api/panel` responde 401. | Aprobada |
+| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `loginDevuelveTokenQueDaAccesoAlPanel` | `admin` inicia sesión, recibe un token Bearer con rol administrador y con él abre `/api/panel` y `/api/usuarios`. | Aprobada |
+| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `loginConClaveIncorrectaRecibe401` | Una contraseña errada responde 401. | Aprobada |
+| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `tokenManipuladoRecibe401` | Un token con firma inválida responde 401. | Aprobada |
+| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `consultaNoPuedeCrearUsuarios` | El rol consulta recibe 403 al enviar `POST /api/usuarios`. | Aprobada |
+| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `consultaNoPuedeVerReglasNiReportes` | El rol consulta recibe 403 en `/api/reglas` y `/api/reportes`. | Aprobada |
+| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `analistaNoPuedeEditarReglas` | El analista recibe 403 al enviar `PUT /api/reglas/1`. | Aprobada |
+| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `validacionDevuelve400ConErroresPorCampo` | Un dispositivo con datos inválidos responde 400 con el error de cada campo. | Aprobada |
+| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `analistaRegistraEventoYLasConsultasSerializanSinErrores` | El analista registra un evento (201) que genera una alerta; luego consulta la alerta, cambia su estado y abre panel, reportes, CSV y catálogos sin errores. | Aprobada |
+| `SeguridadAccesoTest` | Integración (Spring Boot + MockMvc) | `recursoInexistenteDevuelve404` | Una alerta que no existe responde 404. | Aprobada |
 
 Salida resumida de Maven Surefire:
 
 ```text
 Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in ClasificadorRiesgoTest
 Tests run: 4, Failures: 0, Errors: 0, Skipped: 0 -- in MotorAnalisisTest
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in SeguridadAccesoTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in EventoRepositoryTest
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in EventoFormTest
+Tests run: 10, Failures: 0, Errors: 0, Skipped: 0 -- in SeguridadAccesoTest
+Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
 ```
 
 ### 15.2 Pruebas funcionales manuales
@@ -740,9 +781,9 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 | Caso | Pasos | Resultado esperado | Evidencia |
 | :---- | :---- | :---- | :---- |
 | PF01 Login correcto | Ingresar `admin` / `Admin123*` | Entra al panel | Evidencia 5 |
-| PF02 Login incorrecto | Ingresar una contraseña errada | Mensaje de error, sigue en `/login` | Evidencia 2 |
+| PF02 Login incorrecto | Ingresar una contraseña errada | Mensaje «Usuario o contraseña incorrectos», sigue en `/login` | Evidencia 2 |
 | PF03 Cerrar sesión | Pulsar «Salir» | Vuelve al login con aviso de sesión cerrada | Evidencia 3 |
-| PF04 Acceso por rol | Con `consulta`, abrir una ruta de edición | Página de acceso denegado | Evidencia 4 |
+| PF04 Acceso por rol | Con `consulta`, abrir a mano una ruta de edición | Mensaje «Acceso denegado» | Evidencia 4 |
 | PF05 Interfaz por rol | Con `consulta`, abrir dispositivos y una alerta | Sin botones de edición ni formulario de seguimiento | Evidencias 9 y 14 |
 | PF06 Registro de dispositivo | Crear y editar un dispositivo | Aparece en el inventario | Evidencias 6 a 8 |
 | PF07 Registro de evento y alerta | Registrar actividad inusual desde 192.168.10.77 | Se crea una alerta con dos reglas, 20 puntos, nivel bajo | Evidencia 13 |
@@ -755,6 +796,7 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 
 - IP con formato IPv4 válido; MAC con formato válido o vacía.
 - Puerto entre 1 y 65535, obligatorio para «acceso a puerto».
+- Fecha y hora del evento obligatorias y no futuras.
 - Longitudes máximas en nombre, correo, detalle y nota.
 - Usuario de 3 a 40 caracteres, solo letras, números, punto, guion y guion bajo.
 - Correo válido y único; IP de dispositivo única.
@@ -768,8 +810,8 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 | :---- | :---- | :---- | :---- |
 | 1 | Hibernate fallaba al arrancar con la base de XAMPP. | XAMPP trae MariaDB y Hibernate 6 no puede leer su metadata JDBC (falla con la columna `RESERVED`). | Se fijó el dialecto a mano (`MySQLDialect`) y se desactivó la lectura de metadata (`hibernate.boot.allow_jdbc_metadata_access=false`). |
 | 2 | Había que crear la base a mano antes de ejecutar. | MySQL no crea bases de datos por sí solo. | La URL JDBC incluye `createDatabaseIfNotExist=true`; Hibernate crea las tablas con `ddl-auto=update`. |
-| 3 | El menú no podía marcar la sección activa. | Thymeleaf 3.1 ya no expone `#request` dentro de las plantillas. | Se creó `NavegacionAdvice` (`@ControllerAdvice`) que publica la ruta actual en el modelo. |
-| 4 | Error de carga perezosa al ver el detalle de una alerta. | Con `open-in-view` desactivado, las reglas de la alerta (relación `LAZY`) no se pueden cargar desde la plantilla. | `AlertaService.obtener` usa una consulta con las relaciones cargadas (`findConDetalle`) e inicializa las reglas dentro de la transacción. |
+| 3 | Los reportes CSV no se podían descargar con un enlace. | Con JWT, un enlace `<a href>` no envía la cabecera `Authorization` y la API responde 401. | El cliente pide el archivo con `fetch` y el token, y lo guarda desde el navegador (`descargar` en `api.js`). La API expone `Content-Disposition` en CORS. |
+| 4 | Error de carga perezosa al ver el detalle de una alerta. | Con `open-in-view` desactivado, las reglas de la alerta (relación `LAZY`) no se pueden cargar al convertir la respuesta en JSON. | `AlertaService.obtener` usa una consulta con las relaciones cargadas (`findConDetalle`) e inicializa las reglas dentro de la transacción. |
 | 5 | Riesgo de sobrescribir la contraseña al editar un usuario. | Llenar la entidad directamente desde el formulario pisaría el hash guardado. | Formularios separados (`UsuarioForm`); la contraseña solo se cambia si el campo viene con texto. |
 | 6 | Un administrador podía quedarse sin acceso. | Nada impedía desactivar al último administrador o a uno mismo. | `UsuarioService.validarAdministradorRestante` exige que quede al menos un administrador activo y bloquea la autodesactivación. |
 | 7 | Los datos de demostración se duplicaban en cada reinicio. | La carga inicial se ejecutaba siempre. | `DataInitializer` solo escribe si la tabla correspondiente está vacía. |
@@ -779,6 +821,10 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 | 11 | La aplicación no arrancaba en algunos equipos (`UnsupportedClassVersionError`). | El JDK instalado era anterior a 21. | Se documentó el requisito de JDK 21 o superior y cómo configurar `JAVA_HOME` en `Docs/instalacion.md`. |
 | 12 | Ejecutar las pruebas no debía depender de tener MySQL encendido. | La configuración principal apunta a MySQL local. | Perfil `test` con H2 en memoria en modo MySQL y `ddl-auto=create-drop`. |
 | 13 | Posible desfase de las fechas de eventos respecto a la hora local. | La zona horaria del servidor de base de datos puede diferir de la de la JVM. | Zona `America/Bogota` en la URL JDBC y en `hibernate.jdbc.time_zone`. |
+| 14 | El navegador bloqueaba las llamadas del cliente a la API. | Cliente (5173) y API (8080) tienen orígenes distintos, y el navegador aplica CORS. | En desarrollo, Vite reenvía `/api` a la API; para una publicación real, la API acepta los orígenes de `CYBERGUARD_CORS_ORIGENES`. |
+| 15 | Ante un 401 o 403 el cliente no tenía qué mensaje mostrar. | Spring Security responde esos códigos con el cuerpo vacío. | `api.js` usa un mensaje por código de estado cuando no llega cuerpo y, ante un 401, cierra la sesión. |
+| 16 | Un evento registrado con fecha pasada podía disparar reglas de más. | La consulta del historial solo tenía límite inferior (`fechaHora >= desde`) y contaba también los eventos posteriores de la misma IP. | La ventana termina en la fecha del evento (`fechaHora <= hasta`) y las fechas futuras se rechazan en la API y en el cliente. Lo cubren `EventoRepositoryTest` y `EventoFormTest`. |
+| 17 | Credenciales y clave JWT escritas en `application.properties`. | Cada equipo tiene su propia contraseña de MySQL y la clave no debe ir al repositorio. | Los valores salen de `backend/.env` (ignorado por Git) con spring-dotenv; `backend/.env.example` sirve de plantilla. |
 
 **Observación del análisis con los datos de demostración.** Con los valores iniciales, una sola regla nunca supera 30 puntos, así que el panel muestra 0 alertas altas y 0 críticas (Evidencia 5). Para llegar a alto o crítico deben cumplirse varias reglas en el mismo evento. Es coherente con el diseño (el riesgo alto nace de la combinación de señales), pero se revisará la calibración de puntos en la tercera entrega.
 
@@ -797,7 +843,9 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 | Media | Paginación e índices | Paginar las listas de eventos y alertas y crear un índice sobre `eventos(direccion_ip, fecha_hora)`, que es la consulta del historial que usa el motor. |
 | Baja | Reportes en PDF | Además del CSV, un reporte imprimible. |
 | Baja | Política de contraseñas y bloqueo por intentos | Exigir complejidad mínima y bloquear temporalmente tras varios intentos fallidos. |
-| Baja | Despliegue de demostración | Empaquetar el `.jar` y documentar su ejecución en un equipo del laboratorio para la sustentación. |
+| Media | Pruebas del cliente web | Pruebas de componentes y rutas del cliente React (por ejemplo, con Vitest y Testing Library). |
+| Baja | Revocación de sesiones | Comprobar en cada petición que la cuenta siga activa y con el mismo rol, o acortar la vida del token, para que desactivar una cuenta tenga efecto inmediato. |
+| Baja | Despliegue de demostración | Empaquetar el `.jar` y `frontend/dist`, y documentar su ejecución en un equipo del laboratorio para la sustentación. |
 | — | Documento final | Resultados de las pruebas ampliadas, manual de usuario y conclusiones finales. |
 
 ---
@@ -808,13 +856,13 @@ Se recorrió la aplicación con los tres usuarios de demostración. Las capturas
 
 2. El motor de análisis es la parte central del proyecto y cumple su propósito: cada evento se evalúa en el momento del registro contra reglas configurables, y el resultado queda como una alerta con puntuación, nivel y reglas cumplidas. El patrón estrategia permitió separar la condición (en Java) de los parámetros (en la base), de modo que el administrador ajusta el comportamiento sin tocar código y agregar una regla nueva no obliga a modificar el motor.
 
-3. La arquitectura por capas facilitó el trabajo en paralelo y las pruebas. El motor se probó de forma aislada con Mockito, y la seguridad se probó con MockMvc sin depender de MySQL.
+3. La arquitectura por capas facilitó el trabajo en paralelo y las pruebas, y permitió separar el cliente de la API sin tocar el motor ni los servicios: el cambio se concentró en la capa de presentación y en la seguridad. El motor se probó de forma aislada con Mockito, y la API con MockMvc sin depender de MySQL ni de un navegador.
 
-4. La seguridad se aplicó en el propio software y no solo como tema del proyecto: roles por ruta, contraseñas con BCrypt, CSRF, validación de entradas y protecciones para no perder el acceso administrativo.
+4. La seguridad se aplicó en el propio software y no solo como tema del proyecto: roles por endpoint, tokens JWT firmados, contraseñas con BCrypt, validación de entradas, configuración sensible fuera del código y protecciones para no perder el acceso administrativo.
 
-5. Varios problemas técnicos (MariaDB con Hibernate 6, carga perezosa sin `open-in-view`, cambios de Thymeleaf 3.1, formato CSV para Excel) se resolvieron y quedaron documentados, lo que reduce el tiempo de instalación en otros equipos.
+5. Varios problemas técnicos (MariaDB con Hibernate 6, carga perezosa sin `open-in-view`, CORS entre cliente y API, descarga de archivos con token, formato CSV para Excel, la ventana del historial) se resolvieron y quedaron documentados, lo que reduce el tiempo de instalación en otros equipos.
 
-6. Las 8 pruebas automáticas aprobadas cubren la clasificación de riesgo, cuatro escenarios del motor y dos casos de control de acceso. Son una base, pero no alcanzan todavía para validar todo el sistema; ampliarlas es la prioridad de la tercera entrega, junto con la auditoría de acciones y la calibración de las reglas.
+6. Las 20 pruebas automáticas aprobadas cubren la clasificación de riesgo, cuatro escenarios del motor, la ventana del historial, la validación de fechas y diez casos de autenticación, permisos y respuestas de la API. Son una base, pero no alcanzan todavía para validar todo el sistema: faltan pruebas por regla, de los servicios y del cliente; ampliarlas es la prioridad de la tercera entrega, junto con la auditoría de acciones y la calibración de las reglas.
 
 7. El proyecto se mantiene dentro de su alcance académico: registra y analiza eventos de una red autorizada, no escanea ni bloquea, y presenta sus alertas como señales para revisión humana y no como dictámenes de ataque.
 
@@ -830,11 +878,15 @@ Fowler, M. (2002). *Patterns of enterprise application architecture*. Addison-We
 
 Gamma, E., Helm, R., Johnson, R., & Vlissides, J. (1994). *Design patterns: Elements of reusable object-oriented software*. Addison-Wesley.
 
+Jones, M., Bradley, J., & Sakimura, N. (2015). *JSON Web Token (JWT)* (RFC 7519). Internet Engineering Task Force. https://doi.org/10.17487/RFC7519
+
 JUnit Team. (s. f.). *JUnit 5 user guide*. https://junit.org/junit5/docs/current/user-guide/
 
 Martin, R. C. (2017). *Clean architecture: A craftsman's guide to software structure and design*. Prentice Hall.
 
 Mermaid. (s. f.). *Mermaid: Diagramming and charting tool*. https://mermaid.js.org/
+
+Meta Open Source. (s. f.). *React documentation*. https://react.dev/
 
 Mockito. (s. f.). *Mockito framework*. https://site.mockito.org/
 
@@ -864,7 +916,7 @@ Spring. (s. f.-a). *Spring Security reference*. https://docs.spring.io/spring-se
 
 Spring. (s. f.-b). *Spring Data JPA reference documentation*. https://docs.spring.io/spring-data/jpa/reference/
 
-Thymeleaf. (s. f.). *Tutorial: Using Thymeleaf*. https://www.thymeleaf.org/documentation.html
+Vite. (s. f.). *Vite guide*. https://vite.dev/guide/
 
 VMware. (s. f.). *Spring Boot documentation*. https://docs.spring.io/spring-boot/index.html
 

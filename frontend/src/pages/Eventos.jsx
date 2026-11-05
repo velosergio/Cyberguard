@@ -45,7 +45,7 @@ export default function Eventos() {
               </thead>
               <tbody>
                 {eventos.map((e) => (
-                  <tr key={e.id}>
+                  <tr key={e.idEventos}>
                     <td>{formatFecha(e.fechaHora)}</td>
                     <td className="mono">{e.direccionIp}</td>
                     <td>{e.dispositivoNombre ?? 'No registrado'}</td>

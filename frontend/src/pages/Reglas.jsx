@@ -24,7 +24,7 @@ export default function Reglas() {
             </thead>
             <tbody>
               {reglas.map((r) => (
-                <tr key={r.id}>
+                <tr key={r.idReglas}>
                   <td>
                     <strong>{r.nombre}</strong>
                     <div className="ayuda">{r.descripcion}</div>
@@ -33,7 +33,7 @@ export default function Reglas() {
                   <td>{r.umbral}</td>
                   <td>{`${r.ventanaMinutos} min`}</td>
                   <td>{r.activa ? 'Activa' : 'Inactiva'}</td>
-                  <td>{esAdmin && <Link to={`/reglas/${r.id}/editar`}>Editar</Link>}</td>
+                  <td>{esAdmin && <Link to={`/reglas/${r.idReglas}/editar`}>Editar</Link>}</td>
                 </tr>
               ))}
             </tbody>

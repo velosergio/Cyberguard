@@ -40,13 +40,13 @@ public class UsuarioController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UsuarioDto crear(@Valid @RequestBody UsuarioForm form) {
-        form.setId(null);
+        form.setIdUsuarios(null);
         return UsuarioDto.de(usuarioService.guardar(form));
     }
 
     @PutMapping("/{id}")
     public UsuarioDto actualizar(@PathVariable @NonNull Long id, @Valid @RequestBody UsuarioForm form) {
-        form.setId(id);
+        form.setIdUsuarios(id);
         return UsuarioDto.de(usuarioService.guardar(form));
     }
 }

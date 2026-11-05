@@ -40,13 +40,13 @@ public class DispositivoController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public DispositivoDto crear(@Valid @RequestBody DispositivoForm form) {
-        form.setId(null);
+        form.setIdDispositivos(null);
         return DispositivoDto.de(dispositivoService.guardar(form));
     }
 
     @PutMapping("/{id}")
     public DispositivoDto actualizar(@PathVariable @NonNull Long id, @Valid @RequestBody DispositivoForm form) {
-        form.setId(id);
+        form.setIdDispositivos(id);
         return DispositivoDto.de(dispositivoService.guardar(form));
     }
 }

@@ -26,7 +26,8 @@ public class Alerta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_alertas")
+    private Long idAlertas;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "evento_id", nullable = false)
@@ -60,12 +61,12 @@ public class Alerta {
             inverseJoinColumns = @JoinColumn(name = "regla_id"))
     private Set<Regla> reglas = new LinkedHashSet<>();
 
-    public Long getId() {
-        return id;
+    public Long getIdAlertas() {
+        return idAlertas;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdAlertas(Long idAlertas) {
+        this.idAlertas = idAlertas;
     }
 
     public Evento getEvento() {

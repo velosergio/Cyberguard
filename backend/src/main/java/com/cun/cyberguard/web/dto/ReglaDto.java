@@ -3,7 +3,7 @@ package com.cun.cyberguard.web.dto;
 import com.cun.cyberguard.domain.Regla;
 
 public record ReglaDto(
-        Long id,
+        Long idReglas,
         String codigo,
         String nombre,
         String descripcion,
@@ -14,7 +14,7 @@ public record ReglaDto(
 
     public static ReglaDto de(Regla regla) {
         return new ReglaDto(
-                regla.getId(),
+                regla.getIdReglas(),
                 regla.getCodigo(),
                 regla.getNombre(),
                 regla.getDescripcion(),

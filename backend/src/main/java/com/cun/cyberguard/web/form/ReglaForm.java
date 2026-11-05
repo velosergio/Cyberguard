@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 public class ReglaForm {
 
-    private Long id;
+    private Long idReglas;
 
     @NotNull(message = "La puntuación es obligatoria")
     @Min(value = 1, message = "La puntuación mínima es 1")
@@ -24,12 +24,12 @@ public class ReglaForm {
 
     private boolean activa = true;
 
-    public Long getId() {
-        return id;
+    public Long getIdReglas() {
+        return idReglas;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdReglas(Long idReglas) {
+        this.idReglas = idReglas;
     }
 
     public Integer getPuntuacion() {

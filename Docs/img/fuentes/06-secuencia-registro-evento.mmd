@@ -1,6 +1,7 @@
 sequenceDiagram
     autonumber
     actor A as Analista
+    participant UI as Cliente React
     participant C as EventoController
     participant ES as EventoService
     participant DR as DispositivoRepository
@@ -11,10 +12,12 @@ sequenceDiagram
     participant AS as AlertaService
     participant BD as MySQL
 
-    A->>C: POST /eventos (EventoForm)
-    C->>C: @Valid: IP, tipo, fecha, importancia, puerto 1-65535
+    A->>UI: completa el formulario de evento
+    UI->>C: POST /api/eventos (JSON + JWT)
+    C->>C: @Valid: IP, tipo, fecha no futura, importancia, puerto 1-65535
     alt formulario con errores
-        C-->>A: vuelve a eventos/form con mensajes
+        C-->>UI: 400 con errores por campo
+        UI-->>A: mensajes junto a cada campo
     else formulario válido
         C->>ES: registrar(form) [@Transactional]
         ES->>ES: ¿ACCESO_PUERTO sin puerto? → error de negocio
@@ -28,7 +31,7 @@ sequenceDiagram
         ES->>M: analizar(evento)
         M->>DR: findByDireccionIp → ¿registrado?
         loop por cada regla activa (findByActivaTrue)
-            M->>ER: historial(ip, fechaHora − ventana)
+            M->>ER: historial(ip, fechaHora − ventana, fechaHora)
             M->>R: evaluar(ContextoAnalisis)
             R-->>M: Optional<ResultadoDeteccion>
         end
@@ -40,5 +43,6 @@ sequenceDiagram
             AS->>BD: INSERT alertas + alerta_regla (PENDIENTE)
         end
         ES-->>C: evento guardado
-        C-->>A: redirect:/eventos + mensaje
+        C-->>UI: 201 Created + EventoDto
+        UI-->>A: vuelve a /eventos con mensaje
     end

@@ -38,9 +38,9 @@ public class ReporteService {
     public String eventosCsv(List<Evento> eventos) {
         StringBuilder csv = new StringBuilder();
         csv.append('\uFEFF');
-        csv.append("id;fecha;ip;dispositivo;tipo;puerto;importancia;detalle\n");
+        csv.append("id_eventos;fecha;ip;dispositivo;tipo;puerto;importancia;detalle\n");
         for (Evento evento : eventos) {
-            csv.append(evento.getId()).append(';')
+            csv.append(evento.getIdEventos()).append(';')
                     .append(evento.getFechaHora().format(FECHA)).append(';')
                     .append(csv(evento.getDireccionIp())).append(';')
                     .append(csv(evento.getDispositivo() == null ? "" : evento.getDispositivo().getNombre())).append(';')
@@ -56,13 +56,13 @@ public class ReporteService {
     public String alertasCsv(List<Alerta> alertas) {
         StringBuilder csv = new StringBuilder();
         csv.append('\uFEFF');
-        csv.append("id;fecha;ip;nivel;puntuacion;estado;reglas\n");
+        csv.append("id_alertas;fecha;ip;nivel;puntuacion;estado;reglas\n");
         for (Alerta alerta : alertas) {
             String reglas = alerta.getReglas().stream()
                     .map(regla -> regla.getNombre())
                     .reduce((a, b) -> a + " | " + b)
                     .orElse("");
-            csv.append(alerta.getId()).append(';')
+            csv.append(alerta.getIdAlertas()).append(';')
                     .append(alerta.getFechaHora().format(FECHA)).append(';')
                     .append(csv(alerta.getEvento().getDireccionIp())).append(';')
                     .append(csv(alerta.getNivel().getEtiqueta())).append(';')

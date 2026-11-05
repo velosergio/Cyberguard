@@ -50,8 +50,10 @@ public class MotorAnalisis {
             if (estrategia == null || !regla.isActiva()) {
                 continue;
             }
-            LocalDateTime desde = evento.getFechaHora().minusMinutes(Math.max(regla.getVentanaMinutos(), 0));
-            List<Evento> historial = eventoRepository.historial(evento.getDireccionIp(), desde);
+            // La ventana termina en el evento analizado: los eventos posteriores no cuentan.
+            LocalDateTime hasta = evento.getFechaHora();
+            LocalDateTime desde = hasta.minusMinutes(Math.max(regla.getVentanaMinutos(), 0));
+            List<Evento> historial = eventoRepository.historial(evento.getDireccionIp(), desde, hasta);
             estrategia.evaluar(new ContextoAnalisis(evento, regla, historial, registrado))
                     .ifPresent(detecciones::add);
         }

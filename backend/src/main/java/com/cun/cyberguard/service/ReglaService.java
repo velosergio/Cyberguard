@@ -41,7 +41,7 @@ public class ReglaService {
 
     public ReglaForm aFormulario(Regla regla) {
         ReglaForm form = new ReglaForm();
-        form.setId(regla.getId());
+        form.setIdReglas(regla.getIdReglas());
         form.setPuntuacion(regla.getPuntuacion());
         form.setUmbral(regla.getUmbral());
         form.setVentanaMinutos(regla.getVentanaMinutos());

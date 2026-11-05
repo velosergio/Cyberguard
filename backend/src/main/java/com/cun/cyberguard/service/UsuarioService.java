@@ -43,7 +43,7 @@ public class UsuarioService {
 
     @Transactional
     public Usuario guardar(UsuarioForm form) {
-        Long id = form.getId();
+        Long id = form.getIdUsuarios();
         boolean nuevo = id == null;
         String nombreUsuario = form.getUsuario().trim().toLowerCase();
         String correo = form.getCorreo().trim().toLowerCase();
@@ -71,7 +71,7 @@ public class UsuarioService {
 
     public UsuarioForm aFormulario(Usuario usuario) {
         UsuarioForm form = new UsuarioForm();
-        form.setId(usuario.getId());
+        form.setIdUsuarios(usuario.getIdUsuarios());
         form.setNombre(usuario.getNombre());
         form.setUsuario(usuario.getUsuario());
         form.setCorreo(usuario.getCorreo());
@@ -93,13 +93,13 @@ public class UsuarioService {
     private void validarUnicos(String usuario, String correo, Long id, boolean nuevo) {
         boolean usuarioRepetido = nuevo
                 ? usuarioRepository.existsByUsuario(usuario)
-                : usuarioRepository.existsByUsuarioAndIdNot(usuario, id);
+                : usuarioRepository.existsByUsuarioAndIdUsuariosNot(usuario, id);
         if (usuarioRepetido) {
             throw new IllegalArgumentException("Ese nombre de usuario ya está registrado");
         }
         boolean correoRepetido = nuevo
                 ? usuarioRepository.existsByCorreo(correo)
-                : usuarioRepository.existsByCorreoAndIdNot(correo, id);
+                : usuarioRepository.existsByCorreoAndIdUsuariosNot(correo, id);
         if (correoRepetido) {
             throw new IllegalArgumentException("Ese correo ya está registrado");
         }

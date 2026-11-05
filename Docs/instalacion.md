@@ -10,7 +10,7 @@ La primera vez que arranca el backend, si MySQL está en marcha, crea la base `c
 | --- | --- | --- |
 | JDK | 21 o superior | Compilar y ejecutar el backend |
 | Node.js | 20 o superior (incluye `npm`) | Ejecutar y compilar el frontend |
-| XAMPP | MySQL o MariaDB en marcha | Base de datos local |
+| Laragon o XAMPP | MySQL o MariaDB en marcha | Base de datos local |
 | Navegador | Cualquiera reciente | Abrir el panel |
 | Internet | Solo la primera ejecución | El wrapper descarga Maven 3.9.11 y las dependencias; `npm install` baja las del frontend |
 
@@ -34,29 +34,40 @@ Ese cambio vale solo para esa ventana. Para dejarlo fijo, cambia la variable de 
 
 ## 1. Tener el código
 
-Abre una terminal en la carpeta del proyecto, la que contiene `backend` y `frontend`. En este equipo suele ser:
+Abre una terminal en la carpeta del proyecto, la que contiene `backend` y `frontend`. Por ejemplo, con Laragon:
 
 ```bat
-cd c:\xampp\htdocs\mangomorado\Cyberguard
+cd c:\laragon\www\Cyberguard
 ```
 
 ## 2. Encender MySQL
 
-1. Abre el panel de control de XAMPP.
-2. Pulsa **Start** en **MySQL**.
-3. Espera a que el módulo quede en verde.
+- **Laragon:** abre Laragon y pulsa **Start All** (o inicia solo MySQL).
+- **XAMPP:** abre el panel de control, pulsa **Start** en **MySQL** y espera a que el módulo quede en verde.
 
-La instalación local de XAMPP usa el usuario `root` con contraseña vacía, en `localhost` y el puerto `3306`. Esos son los valores de `backend/src/main/resources/application.properties`. La URL incluye `createDatabaseIfNotExist=true`, así que no hace falta crear la base a mano.
+Las dos usan por defecto el usuario `root` con contraseña vacía, en `localhost` y el puerto `3306`.
 
-Si `root` tiene contraseña, edita esa línea y deja el resto igual:
+## 3. Configurar la conexión (`.env`)
 
-```properties
-spring.datasource.password=tu_contrasena
+El backend lee la conexión y los secretos de `backend/.env`. La primera vez, copia la plantilla:
+
+```bat
+cd backend
+copy .env.example .env
 ```
 
-No subas contraseñas reales al repositorio. En este proyecto el valor vacío es el de una instalación local de XAMPP.
+Si tu MySQL usa los valores por defecto, no hace falta cambiar nada. Si `root` tiene contraseña, o usas otro usuario, puerto o nombre de base, edita `backend/.env`:
 
-## 3. Arrancar el backend
+```properties
+DB_USERNAME=root
+DB_PASSWORD=tu_contrasena
+```
+
+La URL incluye `createDatabaseIfNotExist=true`, así que no hace falta crear la base a mano. La lista completa de variables está en `conexion.md`.
+
+`backend/.env` no se sube al repositorio (está en `.gitignore`); solo se versiona `.env.example`, que no lleva secretos. Si falta `.env`, el backend usa los mismos valores por defecto de la plantilla.
+
+## 4. Arrancar el backend
 
 En una terminal, dentro de la carpeta del proyecto:
 
@@ -73,7 +84,7 @@ Started CyberguardApplication
 
 Deja esa terminal abierta. Cerrarla detiene la API. El backend solo responde JSON: abrir http://localhost:8080 en el navegador no muestra ninguna pantalla.
 
-## 4. Arrancar el frontend
+## 5. Arrancar el frontend
 
 En una segunda terminal:
 
@@ -91,7 +102,7 @@ Local:   http://localhost:5173/
 
 Abre http://localhost:5173. Vite reenvía las llamadas a `/api` al backend en el puerto 8080, así que ambos procesos tienen que estar encendidos.
 
-## 5. Entrar
+## 6. Entrar
 
 | Rol | Usuario | Contraseña |
 | --- | --- | --- |
@@ -103,7 +114,7 @@ El administrador puede crear usuarios y editar reglas. El analista registra disp
 
 Esas cuentas se crean una sola vez, cuando la tabla de usuarios está vacía. Reiniciar la aplicación no las duplica.
 
-## 6. Ejecutar las pruebas
+## 7. Ejecutar las pruebas
 
 Las pruebas del backend usan una base H2 en memoria. MySQL puede estar apagado.
 
@@ -112,7 +123,7 @@ cd backend
 mvnw.cmd test
 ```
 
-Al terminar, Maven indica si todas pasaron. Cubren la clasificación de riesgo, el motor de reglas, el login con JWT y el acceso a la API según el rol.
+Al terminar, Maven indica si todas pasaron. Cubren la clasificación de riesgo, el motor de reglas, la ventana del historial de eventos, la validación de fechas del formulario, el login con JWT y el acceso a la API según el rol.
 
 ## Arrancar el jar (opcional)
 
@@ -133,25 +144,27 @@ cd frontend
 npm run build
 ```
 
-El resultado queda en `frontend\dist`: archivos estáticos que cualquier servidor web puede servir. Si la API no está en la misma dirección, define `VITE_API_URL` antes de compilar (ver `frontend/.env.example`) y agrega el origen del frontend a la variable de entorno `CYBERGUARD_CORS_ORIGENES` del backend. Cambia también `CYBERGUARD_JWT_SECRET` por una clave propia de al menos 32 caracteres.
+El resultado queda en `frontend\dist`: archivos estáticos que cualquier servidor web puede servir. Si la API no está en la misma dirección, define `VITE_API_URL` antes de compilar (ver `frontend/.env.example`) y agrega el origen del frontend a `CYBERGUARD_CORS_ORIGENES` en `backend/.env`. Cambia también `CYBERGUARD_JWT_SECRET` por una clave propia de al menos 32 caracteres.
 
 ## Detenerla
 
 En cada terminal (backend y frontend), pulsa `Ctrl+C` y confirma si Windows lo pide.
 
-MySQL puede seguir encendido en XAMPP. Los datos quedan en la base `cyberguard`.
+MySQL puede seguir encendido en Laragon o XAMPP. Los datos quedan en la base `cyberguard`.
 
 ## Si algo falla
 
 **`java` no se reconoce o la versión es menor a 21.** Instala un JDK 21 o superior y define `JAVA_HOME` como en la sección de requisitos. Un error `UnsupportedClassVersionError` o una mención al bytecode 65 significa lo mismo: Java es demasiado antiguo.
 
-**No conecta con MySQL.** El mensaje suele hablar de `Communications link failure` o de que se rechazó la conexión en el puerto 3306. Enciende MySQL en XAMPP y vuelve a lanzar `mvnw.cmd spring-boot:run`.
+**No conecta con MySQL.** El mensaje suele hablar de `Communications link failure` o de que se rechazó la conexión en el puerto 3306. Enciende MySQL en Laragon o XAMPP, revisa `DB_HOST` y `DB_PORT` en `backend/.env` y vuelve a lanzar `mvnw.cmd spring-boot:run`.
 
-**Acceso denegado para `root`.** La contraseña de MySQL no está vacía. Escríbela en `spring.datasource.password`.
+**Acceso denegado para `root`.** La contraseña de MySQL no está vacía. Escríbela en `DB_PASSWORD`, dentro de `backend/.env`.
 
-**El puerto 8080 ya está en uso.** Otra copia de CyberGuard, u otro programa, ocupa ese puerto. Cierra la anterior o cambia `server.port` en `application.properties` y el destino del proxy en `frontend/vite.config.js`.
+**El puerto 8080 ya está en uso.** Otra copia de CyberGuard, u otro programa, ocupa ese puerto. Cierra la anterior o cambia `SERVER_PORT` en `backend/.env` y el destino del proxy en `frontend/vite.config.js`.
 
-**El puerto 5173 ya está en uso.** Vite elige el siguiente puerto libre y lo imprime. Si entras por uno distinto de 5173, el backend rechaza la llamada por CORS: agrega ese origen a `CYBERGUARD_CORS_ORIGENES`.
+**El puerto 5173 ya está en uso.** Vite elige el siguiente puerto libre y lo imprime. Si entras por uno distinto de 5173, el backend rechaza la llamada por CORS: agrega ese origen a `CYBERGUARD_CORS_ORIGENES` en `backend/.env`.
+
+**Error de columnas al arrancar después de actualizar el código** (por ejemplo, una columna `id_*` que no existe). `ddl-auto=update` no renombra columnas. En una base de laboratorio, bórrala y deja que el backend la cree de nuevo; los pasos están en `conexion.md`.
 
 **La página no carga o el login dice «No se pudo conectar con el servidor».** Confirma que la terminal del backend sigue en `Started CyberguardApplication`, que el frontend está encendido y que entras por http://localhost:5173, no por el puerto 80 de Apache ni por el 8080.
 

@@ -131,7 +131,7 @@ class SeguridadAccesoTest {
                 .andExpect(jsonPath("$[0].reglas").isArray())
                 .andExpect(jsonPath("$[0].evento.direccionIp").exists())
                 .andReturn().getResponse().getContentAsString();
-        long idAlerta = objectMapper.readTree(alertas).get(0).get("id").asLong();
+        long idAlerta = objectMapper.readTree(alertas).get(0).get("idAlertas").asLong();
 
         mockMvc.perform(get("/api/alertas/" + idAlerta).with(analista))
                 .andExpect(status().isOk())

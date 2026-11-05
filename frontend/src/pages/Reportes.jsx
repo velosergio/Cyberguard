@@ -77,7 +77,7 @@ export default function Reportes() {
                 </thead>
                 <tbody>
                   {datos.eventos.map((e) => (
-                    <tr key={e.id}>
+                    <tr key={e.idEventos}>
                       <td>{formatFecha(e.fechaHora)}</td>
                       <td className="mono">{e.direccionIp}</td>
                       <td>{etiqueta('tiposEvento', e.tipo)}</td>
@@ -100,7 +100,7 @@ export default function Reportes() {
                 </thead>
                 <tbody>
                   {datos.alertas.map((a) => (
-                    <tr key={a.id}>
+                    <tr key={a.idAlertas}>
                       <td>{formatFecha(a.fechaHora)}</td>
                       <td className="mono">{a.evento.direccionIp}</td>
                       <td>{etiqueta('nivelesRiesgo', a.nivel)}</td>

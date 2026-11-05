@@ -7,7 +7,7 @@ import com.cun.cyberguard.domain.enums.TipoEvento;
 import java.time.LocalDateTime;
 
 public record EventoDto(
-        Long id,
+        Long idEventos,
         Long dispositivoId,
         String dispositivoNombre,
         String direccionIp,
@@ -20,8 +20,8 @@ public record EventoDto(
     public static EventoDto de(Evento evento) {
         var dispositivo = evento.getDispositivo();
         return new EventoDto(
-                evento.getId(),
-                dispositivo == null ? null : dispositivo.getId(),
+                evento.getIdEventos(),
+                dispositivo == null ? null : dispositivo.getIdDispositivos(),
                 dispositivo == null ? null : dispositivo.getNombre(),
                 evento.getDireccionIp(),
                 evento.getTipo(),

@@ -45,14 +45,14 @@ export default function Alertas() {
               </thead>
               <tbody>
                 {alertas.map((a) => (
-                  <tr key={a.id}>
+                  <tr key={a.idAlertas}>
                     <td>{formatFecha(a.fechaHora)}</td>
                     <td className="mono">{a.evento.direccionIp}</td>
                     <td><Nivel nivel={a.nivel} /></td>
                     <td>{a.puntuacion}</td>
                     <td className="estado">{etiqueta('estadosAlerta', a.estado)}</td>
                     <td>{a.reglas.map((r) => r.nombre).join(', ')}</td>
-                    <td><Link to={`/alertas/${a.id}`}>Detalle</Link></td>
+                    <td><Link to={`/alertas/${a.idAlertas}`}>Detalle</Link></td>
                   </tr>
                 ))}
               </tbody>

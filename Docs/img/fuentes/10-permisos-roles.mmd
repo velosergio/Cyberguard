@@ -1,18 +1,18 @@
 flowchart LR
-    subgraph R["Roles"]
+    subgraph R["Roles (claim roles del JWT)"]
         ADM["ADMINISTRADOR"]
         ANA["ANALISTA"]
         CON["CONSULTA"]
     end
-    subgraph P["Rutas protegidas por SecurityConfig"]
-        P1["GET / · /dispositivos · /eventos · /alertas<br/>(consulta)"]
-        P2["POST /dispositivos · POST /eventos<br/>POST /alertas/{id}/estado"]
-        P3["GET /reglas · /reportes (CSV)"]
-        P4["GET /reglas/{id}/editar · POST /reglas/{id}"]
-        P5["/usuarios/**"]
+    subgraph P["Endpoints protegidos por SecurityConfig"]
+        P1["GET /api/panel · /api/dispositivos · /api/eventos<br/>/api/alertas · /api/catalogos · /api/auth/me"]
+        P2["POST /api/dispositivos · PUT /api/dispositivos/{id}<br/>POST /api/eventos · PUT /api/alertas/{id}/estado"]
+        P3["GET /api/reglas · /api/reportes (JSON y CSV)"]
+        P4["PUT /api/reglas/{id}"]
+        P5["/api/usuarios/**"]
     end
     ADM --> P1 & P2 & P3 & P4 & P5
     ANA --> P1 & P2 & P3
     CON --> P1
-    X["Sin sesión"] -. "redirige" .-> L["/login"]
-    Y["Rol insuficiente"] -. "403" .-> D["/acceso-denegado"]
+    X["Sin token o token inválido"] -. "401" .-> L["el cliente vuelve a /login"]
+    Y["Rol insuficiente"] -. "403" .-> D["el cliente muestra «Acceso denegado»"]

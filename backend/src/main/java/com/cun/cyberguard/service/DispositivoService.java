@@ -32,11 +32,11 @@ public class DispositivoService {
 
     @Transactional
     public Dispositivo guardar(DispositivoForm form) {
-        Long id = form.getId();
+        Long id = form.getIdDispositivos();
         String ip = form.getDireccionIp().trim();
         boolean ipRepetida = id == null
                 ? dispositivoRepository.existsByDireccionIp(ip)
-                : dispositivoRepository.existsByDireccionIpAndIdNot(ip, id);
+                : dispositivoRepository.existsByDireccionIpAndIdDispositivosNot(ip, id);
         if (ipRepetida) {
             throw new IllegalArgumentException("Ya existe un dispositivo con esa dirección IP");
         }
@@ -58,7 +58,7 @@ public class DispositivoService {
 
     public DispositivoForm aFormulario(Dispositivo dispositivo) {
         DispositivoForm form = new DispositivoForm();
-        form.setId(dispositivo.getId());
+        form.setIdDispositivos(dispositivo.getIdDispositivos());
         form.setNombre(dispositivo.getNombre());
         form.setDireccionIp(dispositivo.getDireccionIp());
         form.setDireccionMac(dispositivo.getDireccionMac());

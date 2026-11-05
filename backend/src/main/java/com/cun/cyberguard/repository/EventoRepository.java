@@ -15,10 +15,11 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
 
     @Query("""
             select e from Evento e
-            where e.direccionIp = :ip and e.fechaHora >= :desde
+            where e.direccionIp = :ip and e.fechaHora >= :desde and e.fechaHora <= :hasta
             order by e.fechaHora asc
             """)
-    List<Evento> historial(@Param("ip") String ip, @Param("desde") LocalDateTime desde);
+    List<Evento> historial(
+            @Param("ip") String ip, @Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
 
     @Query("""
             select e from Evento e

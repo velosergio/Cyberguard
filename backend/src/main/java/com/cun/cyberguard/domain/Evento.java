@@ -22,7 +22,8 @@ public class Evento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_eventos")
+    private Long idEventos;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "dispositivo_id")
@@ -47,12 +48,12 @@ public class Evento {
     @Column(nullable = false, length = 10)
     private Importancia importancia;
 
-    public Long getId() {
-        return id;
+    public Long getIdEventos() {
+        return idEventos;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdEventos(Long idEventos) {
+        this.idEventos = idEventos;
     }
 
     public Dispositivo getDispositivo() {

@@ -30,14 +30,14 @@ export default function Dispositivos() {
               </thead>
               <tbody>
                 {dispositivos.map((d) => (
-                  <tr key={d.id}>
+                  <tr key={d.idDispositivos}>
                     <td>{d.nombre}</td>
                     <td className="mono">{d.direccionIp}</td>
                     <td className="mono">{d.direccionMac ?? '—'}</td>
                     <td>{etiqueta('tiposDispositivo', d.tipo)}</td>
                     <td>{etiqueta('estadosDispositivo', d.estado)}</td>
                     <td>{formatFecha(d.ultimaActividad)}</td>
-                    <td>{puedeEscribir && <Link to={`/dispositivos/${d.id}/editar`}>Editar</Link>}</td>
+                    <td>{puedeEscribir && <Link to={`/dispositivos/${d.idDispositivos}/editar`}>Editar</Link>}</td>
                   </tr>
                 ))}
               </tbody>

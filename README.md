@@ -13,9 +13,9 @@ El proyecto son dos aplicaciones separadas:
 
 - JDK 21 o superior
 - Node.js 20 o superior
-- MySQL de XAMPP en marcha (usuario `root`, contraseña vacía)
+- MySQL de Laragon o XAMPP en marcha (usuario `root`, contraseña vacía por defecto)
 
-En el panel de XAMPP inicia MySQL. El backend crea la base `cyberguard` al arrancar. Si tu usuario de MySQL tiene contraseña, cámbiala en `backend/src/main/resources/application.properties`.
+Inicia MySQL en Laragon/XAMPP. Copia `backend/.env.example` a `backend/.env` y ajusta usuario/contraseña si hace falta. El backend crea la base `cyberguard` al arrancar. Detalle: `Docs/conexion.md`.
 
 ## Ejecutar
 
@@ -48,12 +48,15 @@ Abre http://localhost:5173. En desarrollo Vite reenvía las llamadas a `/api` al
 
 ## Configuración
 
-Valores del backend en `backend/src/main/resources/application.properties`. Estos dos se pueden cambiar con variables de entorno:
+La conexión y secretos van en `backend/.env` (plantilla: `backend/.env.example`). Ver `Docs/conexion.md`.
 
 | Variable | Para qué | Valor por defecto |
 | --- | --- | --- |
-| `CYBERGUARD_JWT_SECRET` | Clave con la que se firman los tokens (mínimo 32 caracteres). Cámbiala fuera de un equipo de laboratorio. | Una clave de desarrollo incluida en el código |
-| `CYBERGUARD_CORS_ORIGENES` | Orígenes del frontend que pueden llamar a la API, separados por coma | `http://localhost:5173` |
+| `DB_HOST` / `DB_PORT` / `DB_NAME` | Host, puerto y nombre de la base | `localhost` / `3306` / `cyberguard` |
+| `DB_USERNAME` / `DB_PASSWORD` | Credenciales MySQL | `root` / vacío |
+| `CYBERGUARD_JWT_SECRET` | Clave con la que se firman los tokens (mínimo 32 caracteres) | Clave de desarrollo |
+| `CYBERGUARD_CORS_ORIGENES` | Orígenes del frontend autorizados | `http://localhost:5173` |
+| `SERVER_PORT` | Puerto de la API | `8080` |
 
 En el frontend, `VITE_API_URL` (ver `frontend/.env.example`) fija la URL del backend cuando no se usa el proxy de Vite, por ejemplo en producción.
 
@@ -89,5 +92,6 @@ Las pruebas usan H2 en memoria y no necesitan MySQL.
 ## Documentación
 
 - `Docs/instalacion.md` — instalación paso a paso y solución de problemas
+- `Docs/conexion.md` — `.env`, MySQL/Laragon y comprobación de la conexión
 - `Docs/GUIA.md` — qué hace el sistema, la API, la arquitectura y las decisiones de diseño
 - `Docs/base-de-datos.md` — esquema de la base de datos

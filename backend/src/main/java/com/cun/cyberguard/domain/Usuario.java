@@ -18,7 +18,8 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_usuarios")
+    private Long idUsuarios;
 
     @Column(nullable = false, length = 80)
     private String nombre;
@@ -42,12 +43,12 @@ public class Usuario {
     @Column(nullable = false)
     private LocalDateTime creadoEn = LocalDateTime.now();
 
-    public Long getId() {
-        return id;
+    public Long getIdUsuarios() {
+        return idUsuarios;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdUsuarios(Long idUsuarios) {
+        this.idUsuarios = idUsuarios;
     }
 
     public String getNombre() {

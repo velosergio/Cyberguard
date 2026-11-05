@@ -23,13 +23,13 @@ export default function Usuarios() {
             </thead>
             <tbody>
               {usuarios.map((u) => (
-                <tr key={u.id}>
+                <tr key={u.idUsuarios}>
                   <td>{u.nombre}</td>
                   <td className="mono">{u.usuario}</td>
                   <td>{u.correo}</td>
                   <td>{etiqueta('roles', u.rol)}</td>
                   <td>{u.activo ? 'Activo' : 'Inactivo'}</td>
-                  <td><Link to={`/usuarios/${u.id}/editar`}>Editar</Link></td>
+                  <td><Link to={`/usuarios/${u.idUsuarios}/editar`}>Editar</Link></td>
                 </tr>
               ))}
             </tbody>

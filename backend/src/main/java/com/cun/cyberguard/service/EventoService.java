@@ -4,7 +4,6 @@ import com.cun.cyberguard.analysis.MotorAnalisis;
 import com.cun.cyberguard.analysis.ResultadoAnalisis;
 import com.cun.cyberguard.domain.Dispositivo;
 import com.cun.cyberguard.domain.Evento;
-import com.cun.cyberguard.domain.enums.EstadoDispositivo;
 import com.cun.cyberguard.domain.enums.TipoEvento;
 import com.cun.cyberguard.repository.DispositivoRepository;
 import com.cun.cyberguard.repository.EventoRepository;
@@ -53,8 +52,7 @@ public class EventoService {
         evento.setImportancia(form.getImportancia());
         Evento guardado = eventoRepository.save(evento);
 
-        if (dispositivo != null && dispositivo.getEstado() != EstadoDispositivo.DESCONOCIDO) {
-            dispositivo.setUltimaActividad(guardado.getFechaHora());
+        if (dispositivo != null && dispositivo.registrarActividad(guardado.getFechaHora())) {
             dispositivoRepository.save(dispositivo);
         }
 

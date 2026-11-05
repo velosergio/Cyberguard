@@ -15,7 +15,8 @@ public class Regla {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_reglas")
+    private Long idReglas;
 
     @Column(nullable = false, unique = true, length = 40)
     private String codigo;
@@ -38,12 +39,12 @@ public class Regla {
     @Column(nullable = false)
     private boolean activa = true;
 
-    public Long getId() {
-        return id;
+    public Long getIdReglas() {
+        return idReglas;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdReglas(Long idReglas) {
+        this.idReglas = idReglas;
     }
 
     public String getCodigo() {

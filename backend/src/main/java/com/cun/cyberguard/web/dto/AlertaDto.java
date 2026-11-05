@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record AlertaDto(
-        Long id,
+        Long idAlertas,
         LocalDateTime fechaHora,
         int puntuacion,
         NivelRiesgo nivel,
@@ -30,7 +30,7 @@ public record AlertaDto(
 
     private static AlertaDto crear(Alerta alerta, List<ReglaDto> reglas) {
         return new AlertaDto(
-                alerta.getId(),
+                alerta.getIdAlertas(),
                 alerta.getFechaHora(),
                 alerta.getPuntuacion(),
                 alerta.getNivel(),

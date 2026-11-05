@@ -1,7 +1,7 @@
 classDiagram
     direction LR
     class Usuario {
-        -Long id
+        -Long idUsuarios
         -String nombre
         -String usuario
         -String correo
@@ -11,7 +11,7 @@ classDiagram
         -LocalDateTime creadoEn
     }
     class Dispositivo {
-        -Long id
+        -Long idDispositivos
         -String direccionIp
         -String direccionMac
         -String nombre
@@ -21,7 +21,7 @@ classDiagram
         -LocalDateTime ultimaActividad
     }
     class Evento {
-        -Long id
+        -Long idEventos
         -Dispositivo dispositivo
         -String direccionIp
         -TipoEvento tipo
@@ -31,7 +31,7 @@ classDiagram
         -Importancia importancia
     }
     class Regla {
-        -Long id
+        -Long idReglas
         -String codigo
         -String nombre
         -String descripcion
@@ -41,7 +41,7 @@ classDiagram
         -boolean activa
     }
     class Alerta {
-        -Long id
+        -Long idAlertas
         -Evento evento
         -Dispositivo dispositivo
         -LocalDateTime fechaHora

@@ -19,7 +19,8 @@ public class Dispositivo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id_dispositivos")
+    private Long idDispositivos;
 
     @Column(nullable = false, unique = true, length = 45)
     private String direccionIp;
@@ -43,12 +44,12 @@ public class Dispositivo {
 
     private LocalDateTime ultimaActividad;
 
-    public Long getId() {
-        return id;
+    public Long getIdDispositivos() {
+        return idDispositivos;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdDispositivos(Long idDispositivos) {
+        this.idDispositivos = idDispositivos;
     }
 
     public String getDireccionIp() {
@@ -105,5 +106,22 @@ public class Dispositivo {
 
     public void setUltimaActividad(LocalDateTime ultimaActividad) {
         this.ultimaActividad = ultimaActividad;
+    }
+
+    /**
+     * Anota un evento del equipo. La última actividad solo avanza: un evento con fecha
+     * anterior a la guardada no la hace retroceder. Un equipo desconocido no registra actividad.
+     *
+     * @return {@code true} si la última actividad cambió y hay que guardar el dispositivo
+     */
+    public boolean registrarActividad(LocalDateTime fecha) {
+        if (fecha == null || estado == EstadoDispositivo.DESCONOCIDO) {
+            return false;
+        }
+        if (ultimaActividad != null && !fecha.isAfter(ultimaActividad)) {
+            return false;
+        }
+        ultimaActividad = fecha;
+        return true;
     }
 }

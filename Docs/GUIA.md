@@ -132,7 +132,7 @@ Análisis          analysis/             reglas, puntuación, nivel de riesgo
 Datos             repository/ + domain/ consultas y tablas
     │
     ▼
-MySQL (XAMPP)     base cyberguard
+MySQL / MariaDB   base cyberguard (Laragon o XAMPP)
 ```
 
 Cada capa habla con la de abajo a través de clases concretas de Spring (inyección por constructor). Un controlador no escribe SQL ni decide si un escaneo de puertos es sospechoso: llama a un servicio, y el servicio llama al motor cuando hace falta.
@@ -141,7 +141,7 @@ Cada capa habla con la de abajo a través de clases concretas de Spring (inyecci
 
 1. `EventoController` (`POST /api/eventos`) recibe el JSON y comprueba que los campos sean válidos.
 2. `EventoService.registrar` exige un puerto cuando el tipo es «acceso a puerto», busca el dispositivo por el seleccionado o por la IP, y guarda el evento.
-3. Si el dispositivo existe y no está marcado como desconocido, actualiza su última actividad.
+3. Si el dispositivo existe y no está marcado como desconocido, actualiza su última actividad, solo si el evento es más reciente que la que ya tenía.
 4. `MotorAnalisis.analizar` recorre solo las reglas activas.
 5. Para cada regla busca la clase Java que tiene el mismo código, arma el historial de esa IP dentro de la ventana de minutos y le pide una evaluación.
 6. `ClasificadorRiesgo` suma las puntuaciones de las reglas que se cumplieron y las deja entre 0 y 100.
@@ -170,6 +170,8 @@ Cada evaluación recibe un `ContextoAnalisis`: el evento nuevo, la regla con sus
 | Acumulación sospechosa | Hay al menos el umbral de eventos de importancia alta. | 30 | 4 | 30 min |
 
 El historial incluye el evento que se acaba de guardar, porque ya está en la base cuando corre el análisis. Por eso un umbral de 5 significa «cinco eventos en la ventana», contando el actual.
+
+La ventana va hacia atrás desde la fecha del evento analizado: desde `fechaHora − ventana` hasta `fechaHora`, ambos límites incluidos. Los eventos posteriores de la misma IP no cuentan, así que registrar un evento con fecha pasada no dispara reglas por lo que pasó después. Por la misma razón, el formulario no acepta fechas futuras (`@PastOrPresent` en `EventoForm` y `max` en el campo del cliente).
 
 ### Cómo se traduce la suma en un nivel
 
@@ -222,7 +224,11 @@ La zona horaria de la aplicación y de JDBC es `America/Bogota`.
 
 **Los CSV se descargan con `fetch`.** Un enlace normal no puede enviar la cabecera `Authorization`, así que el frontend pide el archivo con el token y lo guarda desde un `Blob`.
 
-**MySQL de XAMPP en local y H2 solo en pruebas.** La URL crea la base `cyberguard` si no existe. Hibernate no lee la metadata JDBC de MariaDB (el motor que trae XAMPP), porque esa lectura falla con la columna `RESERVED`; por eso `allow_jdbc_metadata_access` está en falso y el dialecto se indica a mano.
+**MySQL de Laragon o XAMPP en local y H2 solo en pruebas.** La URL crea la base `cyberguard` si no existe. Hibernate no lee la metadata JDBC de MariaDB (el motor que trae XAMPP), porque esa lectura falla con la columna `RESERVED`; por eso `allow_jdbc_metadata_access` está en falso y el dialecto se indica a mano.
+
+**Configuración en `backend/.env`.** La conexión (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`), el puerto (`SERVER_PORT`), el secreto JWT y los orígenes CORS se leen de `backend/.env` con la dependencia `springboot3-dotenv`. `application.properties` solo referencia esas variables, con valores por defecto de laboratorio. Así cada integrante usa su propia contraseña de MySQL sin tocar un archivo versionado. Se sube `.env.example` como plantilla; `.env` queda fuera del repositorio. Detalle en `conexion.md`.
+
+**Identificadores con nombre propio.** La clave primaria de cada tabla se llama `id_<tabla>` (`id_usuarios`, `id_dispositivos`, `id_eventos`, `id_reglas`, `id_alertas`) y en Java `id<Tabla>` (`idDispositivos`…). El mismo nombre llega al JSON y al frontend. Como `ddl-auto=update` no renombra columnas, una base creada antes del cambio hay que recrearla (ver `conexion.md`).
 
 **Datos de demostración solo si la tabla está vacía.** Reiniciar la aplicación no duplica usuarios ni eventos. Los eventos de ejemplo se registran con `EventoService`, así el panel de la primera visita ya muestra el circuito completo.
 
@@ -230,17 +236,20 @@ La zona horaria de la aplicación y de JDBC es `America/Bogota`.
 
 ## Pruebas
 
-`mvnw.cmd test`, dentro de `backend/`, ejecuta tres grupos, todos contra H2:
+`mvnw.cmd test`, dentro de `backend/`, ejecuta seis grupos (25 pruebas), todos contra H2:
 
 - `ClasificadorRiesgoTest`: los cortes de puntuación (bajo, medio, alto, crítico) y el tope 0–100.
-- `MotorAnalisisTest`: que las reglas de ejemplo disparan la detección esperada.
+- `MotorAnalisisTest`: que las reglas de ejemplo disparan la detección esperada y que la ventana termina en la fecha del evento.
+- `EventoRepositoryTest`: que la consulta del historial filtra por IP, incluye sus límites y excluye los eventos posteriores.
+- `EventoFormTest`: que el formulario de eventos rechaza fechas futuras y acepta pasadas.
+- `EventoServiceTest`: que registrar un evento solo hace avanzar la última actividad del dispositivo (no la retrocede con un evento de fecha pasada ni la toca si el equipo es desconocido).
 - `SeguridadAccesoTest`: login y token, 401 sin credenciales o con token falso, 403 según el rol, errores de validación (400) y recurso inexistente (404), y que registrar un evento, listar y actualizar alertas, el panel y los reportes responden JSON sin errores de carga.
 
 El frontend no tiene pruebas automáticas; `npm run build` comprueba que compila.
 
 ## Cómo arrancarla
 
-Hace falta JDK 21 o superior, Node.js 20 o superior y MySQL de XAMPP en marcha. Si `root` tiene contraseña, se cambia en `backend/src/main/resources/application.properties`. Se levantan dos procesos, cada uno en su terminal:
+Hace falta JDK 21 o superior, Node.js 20 o superior y MySQL de Laragon o XAMPP en marcha. La primera vez se copia `backend/.env.example` a `backend/.env`; si `root` tiene contraseña, se escribe en `DB_PASSWORD`. Se levantan dos procesos, cada uno en su terminal:
 
 ```bat
 cd backend

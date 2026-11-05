@@ -22,7 +22,7 @@ public interface AlertaRepository extends JpaRepository<Alerta, Long> {
             left join fetch a.reglas
             left join fetch a.evento
             left join fetch a.dispositivo
-            where a.id = :id
+            where a.idAlertas = :id
             """)
     Optional<Alerta> findConDetalle(@Param("id") Long id);
 

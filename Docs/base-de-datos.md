@@ -2,6 +2,8 @@
 
 CyberGuard guarda usuarios, el inventario de equipos, los eventos registrados a mano, el catálogo de reglas y las alertas que produce el análisis. El motor es **MySQL** (en XAMPP suele ser MariaDB) y el esquema lo crea Hibernate a partir de las entidades de `backend/src/main/java/com/cun/cyberguard/domain`.
 
+El análisis de formas normales (qué cumple el esquema y qué desnormalizaciones tiene a propósito) está en `NORMALIZACION.md`.
+
 La base se llama `cyberguard`. La URL de conexión la crea si todavía no existe. La zona horaria de la aplicación y de JDBC es `America/Bogota`.
 
 ## Cómo nace el esquema
@@ -44,7 +46,7 @@ Cuenta de acceso. La contraseña se guarda cifrada con BCrypt (el hash cabe en 1
 
 | Columna | Obligatorio | Qué guarda |
 | --- | --- | --- |
-| `id` | sí | Identificador |
+| `id_usuarios` | sí | Identificador |
 | `nombre` | sí | Nombre visible, hasta 80 caracteres |
 | `usuario` | sí | Nombre de inicio de sesión, único, hasta 40 |
 | `correo` | sí | Correo, único, hasta 120 |
@@ -61,7 +63,7 @@ Inventario de la red autorizada. La IP es única: dos equipos no comparten direc
 
 | Columna | Obligatorio | Qué guarda |
 | --- | --- | --- |
-| `id` | sí | Identificador |
+| `id_dispositivos` | sí | Identificador |
 | `direccion_ip` | sí | IPv4, única, hasta 45 caracteres |
 | `direccion_mac` | no | MAC, hasta 17 caracteres (`AA:BB:CC:DD:EE:FF`) |
 | `nombre` | sí | Nombre del equipo, hasta 80 |
@@ -70,7 +72,7 @@ Inventario de la red autorizada. La IP es única: dos equipos no comparten direc
 | `fecha_registro` | sí | Cuándo se dio de alta |
 | `ultima_actividad` | no | Fecha del último evento ligado a este equipo |
 
-`ultima_actividad` se actualiza al registrar un evento de ese dispositivo, salvo que su estado sea `DESCONOCIDO`.
+`ultima_actividad` se actualiza al registrar un evento de ese dispositivo, salvo que su estado sea `DESCONOCIDO`. Solo avanza: un evento con fecha anterior a la ya guardada no la cambia (`Dispositivo.registrarActividad`).
 
 ### `eventos`
 
@@ -78,7 +80,7 @@ Historial. Cada fila es un registro cargado desde la pantalla o por los datos de
 
 | Columna | Obligatorio | Qué guarda |
 | --- | --- | --- |
-| `id` | sí | Identificador |
+| `id_eventos` | sí | Identificador |
 | `dispositivo_id` | no | Equipo del inventario, si se conoce |
 | `direccion_ip` | sí | IP del hecho, hasta 45 caracteres |
 | `tipo` | sí | Intento de conexión, acceso a puerto, actividad inusual, dispositivo desconocido u otro |
@@ -95,7 +97,7 @@ Catálogo ajustable. El `codigo` es único y coincide con la estrategia Java (`C
 
 | Columna | Obligatorio | Qué guarda |
 | --- | --- | --- |
-| `id` | sí | Identificador |
+| `id_reglas` | sí | Identificador |
 | `codigo` | sí | Clave estable, única, hasta 40 caracteres |
 | `nombre` | sí | Nombre visible, hasta 80 |
 | `descripcion` | sí | Qué detecta, hasta 300 |
@@ -123,7 +125,7 @@ Resultado del análisis y su seguimiento. Solo se inserta una fila cuando hubo a
 
 | Columna | Obligatorio | Qué guarda |
 | --- | --- | --- |
-| `id` | sí | Identificador |
+| `id_alertas` | sí | Identificador |
 | `evento_id` | sí | Evento que disparó el análisis |
 | `dispositivo_id` | no | Equipo del evento en ese momento |
 | `fecha_hora` | sí | La misma fecha del evento |

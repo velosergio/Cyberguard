@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 
 public class DispositivoForm {
 
-    private Long id;
+    private Long idDispositivos;
 
     @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 80, message = "El nombre admite hasta 80 caracteres")
@@ -32,12 +32,12 @@ public class DispositivoForm {
     @NotNull(message = "El estado es obligatorio")
     private EstadoDispositivo estado;
 
-    public Long getId() {
-        return id;
+    public Long getIdDispositivos() {
+        return idDispositivos;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdDispositivos(Long idDispositivos) {
+        this.idDispositivos = idDispositivos;
     }
 
     public String getNombre() {

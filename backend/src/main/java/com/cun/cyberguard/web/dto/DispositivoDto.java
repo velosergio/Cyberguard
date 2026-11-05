@@ -7,7 +7,7 @@ import com.cun.cyberguard.domain.enums.TipoDispositivo;
 import java.time.LocalDateTime;
 
 public record DispositivoDto(
-        Long id,
+        Long idDispositivos,
         String nombre,
         String direccionIp,
         String direccionMac,
@@ -18,7 +18,7 @@ public record DispositivoDto(
 
     public static DispositivoDto de(Dispositivo dispositivo) {
         return new DispositivoDto(
-                dispositivo.getId(),
+                dispositivo.getIdDispositivos(),
                 dispositivo.getNombre(),
                 dispositivo.getDireccionIp(),
                 dispositivo.getDireccionMac(),

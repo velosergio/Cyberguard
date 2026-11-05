@@ -43,6 +43,8 @@ class MotorAnalisisTest {
     @Mock
     private DispositivoRepository dispositivoRepository;
 
+    private static final LocalDateTime FECHA = LocalDateTime.of(2026, 9, 28, 10, 0);
+
     private MotorAnalisis motor;
 
     @BeforeEach
@@ -67,7 +69,7 @@ class MotorAnalisisTest {
         when(dispositivoRepository.findByDireccionIp("10.0.0.8")).thenReturn(Optional.empty());
         when(reglaRepository.findByActivaTrue()).thenReturn(List.of(
                 regla(CodigosRegla.DISPOSITIVO_NO_REGISTRADO, 10, 1, 0)));
-        when(eventoRepository.historial(eq("10.0.0.8"), any())).thenReturn(List.of(evento));
+        when(eventoRepository.historial(eq("10.0.0.8"), any(), eq(FECHA))).thenReturn(List.of(evento));
 
         ResultadoAnalisis resultado = motor.analizar(evento);
 
@@ -86,7 +88,7 @@ class MotorAnalisisTest {
         registrarDispositivo("192.168.1.20");
         when(reglaRepository.findByActivaTrue()).thenReturn(List.of(
                 regla(CodigosRegla.MULTIPLES_INTENTOS, 20, 8, 5)));
-        when(eventoRepository.historial(eq("192.168.1.20"), any())).thenReturn(historial);
+        when(eventoRepository.historial(eq("192.168.1.20"), any(), eq(FECHA))).thenReturn(historial);
 
         ResultadoAnalisis resultado = motor.analizar(actual);
 
@@ -105,7 +107,7 @@ class MotorAnalisisTest {
         registrarDispositivo("192.168.1.30");
         when(reglaRepository.findByActivaTrue()).thenReturn(List.of(
                 regla(CodigosRegla.ESCANEO_PUERTOS, 25, 5, 2)));
-        when(eventoRepository.historial(eq("192.168.1.30"), any())).thenReturn(historial);
+        when(eventoRepository.historial(eq("192.168.1.30"), any(), eq(FECHA))).thenReturn(historial);
 
         ResultadoAnalisis resultado = motor.analizar(historial.getLast());
 
@@ -120,7 +122,7 @@ class MotorAnalisisTest {
         when(reglaRepository.findByActivaTrue()).thenReturn(List.of(
                 regla(CodigosRegla.DISPOSITIVO_NO_REGISTRADO, 60, 1, 0),
                 regla(CodigosRegla.ACTIVIDAD_INUSUAL, 60, 1, 60)));
-        when(eventoRepository.historial(eq("10.1.1.9"), any())).thenReturn(List.of(evento));
+        when(eventoRepository.historial(eq("10.1.1.9"), any(), eq(FECHA))).thenReturn(List.of(evento));
 
         ResultadoAnalisis resultado = motor.analizar(evento);
 
@@ -142,7 +144,7 @@ class MotorAnalisisTest {
         evento.setTipo(tipo);
         evento.setPuerto(puerto);
         evento.setImportancia(importancia);
-        evento.setFechaHora(LocalDateTime.of(2026, 9, 28, 10, 0));
+        evento.setFechaHora(FECHA);
         return evento;
     }
 

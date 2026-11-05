@@ -22,7 +22,7 @@ export default function EventoForm() {
   // Al elegir un dispositivo registrado se rellena su IP, como hacía la pantalla anterior.
   const elegirDispositivo = (evento) => {
     const id = evento.target.value;
-    const dispositivo = dispositivos.find((d) => String(d.id) === id);
+    const dispositivo = dispositivos.find((d) => String(d.idDispositivos) === id);
     setValores((previos) => ({
       ...previos,
       dispositivoId: id,
@@ -60,7 +60,7 @@ export default function EventoForm() {
               <select name="dispositivoId" value={valores.dispositivoId} onChange={elegirDispositivo}>
                 <option value="">Sin dispositivo registrado</option>
                 {dispositivos.map((d) => (
-                  <option key={d.id} value={d.id}>{`${d.nombre} · ${d.direccionIp}`}</option>
+                  <option key={d.idDispositivos} value={d.idDispositivos}>{`${d.nombre} · ${d.direccionIp}`}</option>
                 ))}
               </select>
             </Campo>
@@ -69,7 +69,8 @@ export default function EventoForm() {
                 <input className="mono" name="direccionIp" value={valores.direccionIp} onChange={cambiar} placeholder="192.168.10.11" />
               </Campo>
               <Campo etiqueta="Fecha y hora" error={errores.fechaHora}>
-                <input type="datetime-local" name="fechaHora" value={valores.fechaHora} onChange={cambiar} />
+                {/* El backend rechaza fechas futuras (@PastOrPresent); el navegador avisa antes de enviar. */}
+                <input type="datetime-local" name="fechaHora" value={valores.fechaHora} onChange={cambiar} max={ahoraLocal()} />
               </Campo>
             </div>
             <div className="dos">

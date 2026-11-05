@@ -12,7 +12,7 @@ public interface DispositivoRepository extends JpaRepository<Dispositivo, Long> 
 
     boolean existsByDireccionIp(String direccionIp);
 
-    boolean existsByDireccionIpAndIdNot(String direccionIp, Long id);
+    boolean existsByDireccionIpAndIdDispositivosNot(String direccionIp, Long idDispositivos);
 
     List<Dispositivo> findAllByOrderByNombreAsc();
 }

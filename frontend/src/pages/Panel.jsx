@@ -33,7 +33,7 @@ export default function Panel() {
                   </thead>
                   <tbody>
                     {resumen.eventosRecientes.map((evento) => (
-                      <tr key={evento.id}>
+                      <tr key={evento.idEventos}>
                         <td>{formatFecha(evento.fechaHora)}</td>
                         <td className="mono">{evento.direccionIp}</td>
                         <td>{etiqueta('tiposEvento', evento.tipo)}</td>
@@ -55,10 +55,10 @@ export default function Panel() {
                   </thead>
                   <tbody>
                     {resumen.alertasRecientes.map((alerta) => (
-                      <tr key={alerta.id}>
+                      <tr key={alerta.idAlertas}>
                         <td><Nivel nivel={alerta.nivel} /></td>
                         <td className="mono">{alerta.evento.direccionIp}</td>
-                        <td><Link to={`/alertas/${alerta.id}`}>Ver</Link></td>
+                        <td><Link to={`/alertas/${alerta.idAlertas}`}>Ver</Link></td>
                       </tr>
                     ))}
                   </tbody>

@@ -71,24 +71,24 @@ public class DataInitializer {
                 Dispositivo servidor = dispositivoRepository.findByDireccionIp("192.168.10.20").orElseThrow();
                 Dispositivo camara = dispositivoRepository.findByDireccionIp("192.168.10.30").orElseThrow();
 
-                eventoService.registrar(evento(pc.getId(), pc.getDireccionIp(), TipoEvento.ACTIVIDAD_INUSUAL,
+                eventoService.registrar(evento(pc.getIdDispositivos(), pc.getDireccionIp(), TipoEvento.ACTIVIDAD_INUSUAL,
                         null, ahora.minusMinutes(40), "Tráfico fuera del horario de laboratorio", Importancia.MEDIA));
                 eventoService.registrar(evento(null, "192.168.10.99", TipoEvento.DISPOSITIVO_DESCONOCIDO,
                         null, ahora.minusMinutes(35), "Equipo no inventariado", Importancia.MEDIA));
 
                 for (int i = 0; i < 8; i++) {
-                    eventoService.registrar(evento(servidor.getId(), servidor.getDireccionIp(), TipoEvento.INTENTO_CONEXION,
+                    eventoService.registrar(evento(servidor.getIdDispositivos(), servidor.getDireccionIp(), TipoEvento.INTENTO_CONEXION,
                             null, ahora.minusSeconds(80L - (i * 5L)), "Intento de conexión de laboratorio " + (i + 1),
                             Importancia.MEDIA));
                 }
                 int[] puertos = {22, 80, 443, 8080, 3306};
                 for (int i = 0; i < puertos.length; i++) {
-                    eventoService.registrar(evento(camara.getId(), camara.getDireccionIp(), TipoEvento.ACCESO_PUERTO,
+                    eventoService.registrar(evento(camara.getIdDispositivos(), camara.getDireccionIp(), TipoEvento.ACCESO_PUERTO,
                             puertos[i], ahora.minusSeconds(40L - (i * 4L)), "Acceso al puerto " + puertos[i],
                             Importancia.MEDIA));
                 }
                 for (int i = 0; i < 4; i++) {
-                    eventoService.registrar(evento(pc.getId(), pc.getDireccionIp(), TipoEvento.OTRO,
+                    eventoService.registrar(evento(pc.getIdDispositivos(), pc.getDireccionIp(), TipoEvento.OTRO,
                             null, ahora.minusMinutes(12L - i), "Evento de importancia alta " + (i + 1),
                             Importancia.ALTA));
                 }

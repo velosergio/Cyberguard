@@ -1,6 +1,6 @@
 erDiagram
     USUARIOS {
-        BIGINT id PK
+        BIGINT id_usuarios PK
         VARCHAR nombre "80"
         VARCHAR usuario UK "40"
         VARCHAR correo UK "120"
@@ -10,7 +10,7 @@ erDiagram
         DATETIME creado_en
     }
     DISPOSITIVOS {
-        BIGINT id PK
+        BIGINT id_dispositivos PK
         VARCHAR direccion_ip UK "45"
         VARCHAR direccion_mac "17, opcional"
         VARCHAR nombre "80"
@@ -20,7 +20,7 @@ erDiagram
         DATETIME ultima_actividad "opcional"
     }
     EVENTOS {
-        BIGINT id PK
+        BIGINT id_eventos PK
         BIGINT dispositivo_id FK "opcional"
         VARCHAR direccion_ip "45"
         VARCHAR tipo "30"
@@ -30,7 +30,7 @@ erDiagram
         VARCHAR importancia "BAJA, MEDIA, ALTA"
     }
     REGLAS {
-        BIGINT id PK
+        BIGINT id_reglas PK
         VARCHAR codigo UK "40"
         VARCHAR nombre "80"
         VARCHAR descripcion "300"
@@ -40,7 +40,7 @@ erDiagram
         BOOLEAN activa
     }
     ALERTAS {
-        BIGINT id PK
+        BIGINT id_alertas PK
         BIGINT evento_id FK
         BIGINT dispositivo_id FK "opcional"
         DATETIME fecha_hora

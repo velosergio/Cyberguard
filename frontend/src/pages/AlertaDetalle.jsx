@@ -41,7 +41,7 @@ export default function AlertaDetalle() {
         <>
           {mensaje && <p className="aviso">{mensaje}</p>}
           <Encabezado
-            titulo={`Alerta ${alerta.id}`}
+            titulo={`Alerta ${alerta.idAlertas}`}
             subtitulo="La puntuación acumulada no afirma que exista un ataque. Indica que conviene revisarla."
           >
             <EnlaceBoton to="/alertas" fantasma>Volver</EnlaceBoton>
@@ -64,7 +64,7 @@ export default function AlertaDetalle() {
               <h2>Reglas activadas</h2>
               <ul className="lista-reglas">
                 {alerta.reglas.map((regla) => (
-                  <li key={regla.id}>
+                  <li key={regla.idReglas}>
                     <strong>{regla.nombre}</strong>
                     <span>{` · ${regla.puntuacion} pts`}</span>
                     <div className="ayuda">{regla.descripcion}</div>
